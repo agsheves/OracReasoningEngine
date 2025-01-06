@@ -10,41 +10,23 @@ socket.on('simulation_response', (data) => {
 
     try {
         const response = JSON.parse(data.response);
-        const content = document.createElement('div');
-        content.classList.add('message-content');
+        const content = document.createElement('p');
+        content.textContent = response.response;
+        messageElement.appendChild(content);
 
-        // Create timestamp element
-        const timestamp = document.createElement('div');
-        timestamp.classList.add('message-timestamp');
-        timestamp.textContent = new Date(response.timestamp).toLocaleTimeString();
-        messageElement.appendChild(timestamp);
-
-        // Add copy button
-        const copyButton = document.createElement('button');
-        copyButton.classList.add('copy-button');
-        copyButton.innerHTML = '<i class="fas fa-copy"></i>';
-        copyButton.onclick = () => {
-            const textToCopy = response.type === 'simulation_response' ? response.response : response.error;
-            navigator.clipboard.writeText(textToCopy)
-                .then(() => {
-                    copyButton.innerHTML = '<i class="fas fa-check"></i>';
-                    setTimeout(() => {
-                        copyButton.innerHTML = '<i class="fas fa-copy"></i>';
-                    }, 2000);
-                })
-                .catch(err => console.error('Failed to copy:', err));
-        };
-        messageElement.appendChild(copyButton);
-
-        // Format and display the main response
-        if (response.type === 'simulation_response') {
-            content.innerHTML = response.response.replace(/\n/g, '<br>');
-        } else if (response.type === 'error') {
-            content.innerHTML = `Error: ${response.error}`;
-            messageElement.classList.add('error-message');
+        if (response.state_update) {
+            const stateUpdate = document.createElement('div');
+            stateUpdate.classList.add('state-update');
+            stateUpdate.textContent = `State Update: ${response.state_update}`;
+            messageElement.appendChild(stateUpdate);
         }
 
-        messageElement.appendChild(content);
+        if (response.available_actions && response.available_actions.length > 0) {
+            const actions = document.createElement('div');
+            actions.classList.add('available-actions');
+            actions.textContent = 'Available actions: ' + response.available_actions.join(', ');
+            messageElement.appendChild(actions);
+        }
     } catch (error) {
         console.error('Error parsing response:', error);
         const content = document.createElement('p');
@@ -52,9 +34,8 @@ socket.on('simulation_response', (data) => {
         messageElement.appendChild(content);
     }
 
-    const chatWindow = document.getElementById('chat-window');
-    chatWindow.appendChild(messageElement);
-    chatWindow.scrollTop = chatWindow.scrollHeight;
+    document.getElementById('chat-window').appendChild(messageElement);
+    document.getElementById('chat-window').scrollTop = document.getElementById('chat-window').scrollHeight;
 
     // Hide loading indicator when response is received
     window.setLoading(false);
@@ -65,45 +46,13 @@ socket.on('simulation_error', (data) => {
     messageElement.classList.add('message', 'error-message');
     messageElement.textContent = 'Error: ' + data.error;
     document.getElementById('chat-window').appendChild(messageElement);
+
+    // Hide loading indicator on error
     window.setLoading(false);
 });
 
 socket.on('disconnect', () => {
     console.log('Disconnected from server');
+    // Hide loading indicator on disconnect
     window.setLoading(false);
-});
-
-// Export chat functionality
-document.getElementById('export-chat')?.addEventListener('click', () => {
-    const messages = [];
-    document.querySelectorAll('.message').forEach(msg => {
-        const timestamp = msg.querySelector('.message-timestamp')?.textContent || '';
-        const content = msg.querySelector('.message-content')?.textContent || msg.textContent;
-        const isUser = msg.classList.contains('user-message');
-        messages.push(`[${timestamp}] ${isUser ? 'User' : 'System'}: ${content}\n`);
-    });
-
-    const chatText = messages.join('\n');
-    const blob = new Blob([chatText], { type: 'text/plain' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'worldsim-chat-export.txt';
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
-});
-
-// Add keyboard shortcut for copying message content
-document.addEventListener('keydown', (e) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
-        const selection = window.getSelection();
-        if (selection.toString()) {
-            e.preventDefault();
-            navigator.clipboard.writeText(selection.toString())
-                .then(() => console.log('Text copied'))
-                .catch(err => console.error('Failed to copy:', err));
-        }
-    }
 });
