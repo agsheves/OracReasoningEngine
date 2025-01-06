@@ -6,7 +6,11 @@ from datetime import datetime
 
 class WorldSimulator:
     def __init__(self):
-        self.client = anthropic.Client()
+        api_key = os.environ.get('ANTHROPIC_API_KEY')
+        if not api_key:
+            raise ValueError("ANTHROPIC_API_KEY environment variable is not set")
+
+        self.client = anthropic.Client(api_key=api_key)
         self.system_prompt = """
         You are a world simulation system. Your role is to maintain and evolve a persistent virtual world.
         The world should:
@@ -15,7 +19,7 @@ class WorldSimulator:
         - Provide detailed, immersive responses
         - Track and reference previous events
         - Generate engaging narratives and scenarios
-        
+
         Format your responses as JSON with the following structure:
         {
             "response": "Detailed description of the world state and events",
@@ -23,7 +27,7 @@ class WorldSimulator:
             "available_actions": ["list", "of", "possible", "actions"]
         }
         """
-        
+
     def process_input(self, user_input):
         try:
             response = self.client.messages.create(
@@ -34,7 +38,8 @@ class WorldSimulator:
                     "content": f"{self.system_prompt}\nUser Input: {user_input}"
                 }]
             )
-            
+
+            # Extract the content from the response
             return json.loads(response.content)
         except Exception as e:
             logging.error(f"Error in simulation processing: {str(e)}")
