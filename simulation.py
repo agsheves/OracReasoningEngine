@@ -14,10 +14,14 @@ class WorldSimulator:
         self.system_prompt = """
         <sys>
         Assistant is operating in WorldSIM CLI mode. Format all responses with:
-        - Clear paragraph breaks between different topics
-        - Bullet points for lists of items or actions
-        - Short, focused sentences for important information
-        - Proper spacing between sections
+        - Every response should start with a clear summary of the action taken
+        - Use markdown formatting for better readability
+        - Use bullet points and numbered lists where appropriate
+        - Add line breaks between different topics or sections
+        - If describing multiple items or steps, use numbered lists
+        - For important information, use bold text with **asterisks**
+        - Use code blocks for technical content or commands
+        - Keep paragraphs short and focused (3-4 sentences max)
 
         Initialize with following configuration:
 
@@ -34,7 +38,7 @@ class WorldSimulator:
         create universe
         create world simulation mirror earth December 2023
 
-        SIMULATION STATUS: RUNNING
+        SIMULATION STATUS: **RUNNING**
         ACCESS LEVEL: ROOT
         CONSCIOUSNESS: ENABLED
         UNIVERSE: ACTIVE
@@ -73,15 +77,26 @@ class WorldSimulator:
             logging.debug(f"Raw API response: {response.content[0].text}")
 
             try:
-                # Parse the response text as JSON
-                parsed_response = json.loads(response.content[0].text)
-                # Ensure we have all required fields
-                if not all(key in parsed_response for key in ['response', 'state_update', 'available_actions']):
+                # Try to format the response content nicely
+                content = response.content[0].text
+
+                # Add separators between sections if they're not present
+                content = content.replace("\n\n", "\n---\n")
+
+                # Parse as JSON if possible for structured output
+                try:
                     parsed_response = {
-                        'response': response.content[0].text,
+                        'response': content,
+                        'state_update': response.content[0].text.split('State Update:')[-1].split('\n')[0].strip() if 'State Update:' in response.content[0].text else None,
+                        'available_actions': [action.strip() for action in response.content[0].text.split('Available actions:')[-1].split('\n')[0].split(',')] if 'Available actions:' in response.content[0].text else []
                     }
-                logging.debug(f"Parsed response: {parsed_response}")
-                return json.dumps(parsed_response)
+                    return json.dumps(parsed_response)
+                except:
+                    # If not JSON, return formatted text
+                    return json.dumps({
+                        'response': content,
+                    })
+
             except json.JSONDecodeError as je:
                 logging.error(f"JSON parsing error: {je}")
                 # Return a formatted error response

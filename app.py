@@ -8,16 +8,18 @@ from sqlalchemy.orm import DeclarativeBase
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG,  # Changed to DEBUG for more detailed logs
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
+logger = logging.getLogger(__name__)
 
 class Base(DeclarativeBase):
     pass
 
 # Initialize extensions
 db = SQLAlchemy(model_class=Base)
-socketio = SocketIO()
+# Initialize SocketIO with proper CORS and error handling
+socketio = SocketIO(cors_allowed_origins="*", logger=True, engineio_logger=True)
 login_manager = LoginManager()
 
 @login_manager.user_loader
@@ -26,10 +28,12 @@ def load_user(id):
     return User.query.get(int(id))
 
 def create_app():
+    logger.info("Initializing Flask application...")
     app = Flask(__name__)
 
     # Environment-based configuration
     is_production = os.environ.get('FLASK_ENV') == 'production'
+    logger.info(f"Running in {'production' if is_production else 'development'} mode")
 
     # Configuration
     app.config['SECRET_KEY'] = os.environ.get("FLASK_SECRET_KEY", "dev_key_replace_in_production")
@@ -48,26 +52,33 @@ def create_app():
             PERMANENT_SESSION_LIFETIME=3600,  # 1 hour
             DEBUG=False
         )
+        logger.info("Production configuration applied")
     else:
         app.config['DEBUG'] = True
+        logger.info("Development configuration applied")
 
     # Initialize extensions
+    logger.info("Initializing Flask extensions...")
     db.init_app(app)
-    socketio.init_app(app)
+    socketio.init_app(app, async_mode='eventlet', logger=True, engineio_logger=True)
     login_manager.init_app(app)
     login_manager.login_view = 'main.login'
 
     with app.app_context():
+        logger.info("Setting up application context...")
         # Import parts of our application
         from models import User
         db.create_all()
+        logger.info("Database tables created")
 
         # Register blueprints
         from routes import main as main_blueprint
         app.register_blueprint(main_blueprint)
+        logger.info("Blueprints registered")
 
         # Register error handlers
         from error_handlers import register_error_handlers
         register_error_handlers(app)
+        logger.info("Error handlers registered")
 
         return app

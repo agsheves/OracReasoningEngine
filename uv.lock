@@ -122,6 +122,19 @@ wheels = [
 ]
 
 [[package]]
+name = "eventlet"
+version = "0.38.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "dnspython" },
+    { name = "greenlet" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a6/4e/f974cc85b8d19b31176e0cca90e1650156f385c9c294a96fc42846ca75e9/eventlet-0.38.2.tar.gz", hash = "sha256:6a46823af1dca7d29cf04c0d680365805435473c3acbffc176765c7f8787edac", size = 561526 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/aa/07/00feb2c708d71796e190a3051a0d530a4922bfb6b346aa8302725840698c/eventlet-0.38.2-py3-none-any.whl", hash = "sha256:4a2e3cbc53917c8f39074ccf689501168563d3a4df59e9cddd5e9d3b7f85c599", size = 363192 },
+]
+
+[[package]]
 name = "flask"
 version = "3.1.0"
 source = { registry = "https://pypi.org/simple" }
@@ -585,6 +598,7 @@ source = { virtual = "." }
 dependencies = [
     { name = "anthropic" },
     { name = "email-validator" },
+    { name = "eventlet" },
     { name = "flask" },
     { name = "flask-login" },
     { name = "flask-socketio" },
@@ -602,6 +616,7 @@ dependencies = [
 requires-dist = [
     { name = "anthropic", specifier = ">=0.42.0" },
     { name = "email-validator", specifier = ">=2.2.0" },
+    { name = "eventlet", specifier = ">=0.38.2" },
     { name = "flask", specifier = ">=3.1.0" },
     { name = "flask-login", specifier = ">=0.6.3" },
     { name = "flask-socketio", specifier = ">=5.5.0" },
