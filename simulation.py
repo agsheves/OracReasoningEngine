@@ -39,8 +39,11 @@ class WorldSimulator:
                 }]
             )
 
-            # Extract the content from the response
-            return json.loads(response.content)
+            # The content from the response is already a string, no need for additional parsing
+            response_text = response.content[0].text
+            # Now parse the JSON string from the response text
+            return json.loads(response_text)
+
         except Exception as e:
             logging.error(f"Error in simulation processing: {str(e)}")
             raise

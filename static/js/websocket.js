@@ -5,22 +5,30 @@ socket.on('connect', () => {
 });
 
 socket.on('simulation_response', (data) => {
-    const response = JSON.parse(data.response);
     const messageElement = document.createElement('div');
     messageElement.classList.add('message', 'system-message');
-    
-    const content = document.createElement('p');
-    content.textContent = response.response;
-    messageElement.appendChild(content);
-    
-    if (response.available_actions && response.available_actions.length > 0) {
-        const actions = document.createElement('div');
-        actions.classList.add('available-actions');
-        actions.textContent = 'Available actions: ' + response.available_actions.join(', ');
-        messageElement.appendChild(actions);
+
+    try {
+        const response = JSON.parse(data.response);
+        const content = document.createElement('p');
+        content.textContent = response.response;
+        messageElement.appendChild(content);
+
+        if (response.available_actions && response.available_actions.length > 0) {
+            const actions = document.createElement('div');
+            actions.classList.add('available-actions');
+            actions.textContent = 'Available actions: ' + response.available_actions.join(', ');
+            messageElement.appendChild(actions);
+        }
+    } catch (error) {
+        console.error('Error parsing response:', error);
+        const content = document.createElement('p');
+        content.textContent = data.response;
+        messageElement.appendChild(content);
     }
-    
+
     document.getElementById('chat-window').appendChild(messageElement);
+    document.getElementById('chat-window').scrollTop = document.getElementById('chat-window').scrollHeight;
 });
 
 socket.on('simulation_error', (data) => {
