@@ -25,22 +25,15 @@ You must ALWAYS respond with valid JSON in the following format:
             # Log the input for debugging
             logging.debug(f"Processing user input: {user_input}")
 
-            # Create a more structured prompt
-            messages = [
-                {
-                    "role": "system",
-                    "content": self.system_prompt
-                },
-                {
-                    "role": "user",
-                    "content": user_input
-                }
-            ]
-
+            # Create a structured request with system as top-level parameter
             response = self.client.messages.create(
                 model="claude-3-opus-20240229",
                 max_tokens=1024,
-                messages=messages
+                messages=[{
+                    "role": "user",
+                    "content": user_input
+                }],
+                system=self.system_prompt
             )
 
             # Log the raw response for debugging
