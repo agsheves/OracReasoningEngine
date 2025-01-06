@@ -24,6 +24,19 @@ body {
     padding: 20px;
 }
 
+/* Header Styles */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.header-actions {
+    display: flex;
+    gap: 10px;
+}
+
 /* Login Form Styles */
 .login-container {
     max-width: 400px;
@@ -61,10 +74,29 @@ body {
 }
 
 .message {
-    margin: 10px 0;
-    padding: 10px;
+    margin: 15px 0;
+    padding: 15px;
     border-radius: 5px;
     background: rgba(255, 255, 255, 0.1);
+    white-space: pre-line;
+}
+
+.message p {
+    margin-bottom: 10px;
+}
+
+.state-update {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    font-style: italic;
+}
+
+.available-actions {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--holo-orange);
 }
 
 .input-area {

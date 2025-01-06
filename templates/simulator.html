@@ -4,15 +4,18 @@
 <div class="simulator-container">
     <header>
         <h1>WorldSim Simulator</h1>
-        <a href="{{ url_for('main.logout') }}" class="btn">Logout</a>
+        <div class="header-actions">
+            <button id="export-chat" class="btn">Export Chat</button>
+            <a href="{{ url_for('main.logout') }}" class="btn">Logout</a>
+        </div>
     </header>
-    
+
     <div id="chat-window" class="chat-window">
         <div class="message system-message">
             <p>Welcome to WorldSim. Your simulation is ready to begin.</p>
         </div>
     </div>
-    
+
     <div class="input-area">
         <input type="text" id="message-input" placeholder="Enter your action...">
         <button id="send-button" class="btn">Send</button>

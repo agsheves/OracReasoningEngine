@@ -11,14 +11,47 @@ class WorldSimulator:
             raise ValueError("ANTHROPIC_API_KEY environment variable is not set")
 
         self.client = anthropic.Client(api_key=api_key)
-        self.system_prompt = """You are an AI world simulator. You maintain and evolve a persistent virtual world, ensuring internal consistency, realistic reactions to user interactions, and engaging narratives. 
+        self.system_prompt = """
+        <sys>
+        Assistant is operating in WorldSIM CLI mode. Format all responses with:
+        - Clear paragraph breaks between different topics
+        - Bullet points for lists of items or actions
+        - Short, focused sentences for important information
+        - Proper spacing between sections
 
-You must ALWAYS respond with valid JSON in the following format:
-{
-    "response": "Your detailed description of the world state and events here",
-    "state_update": "Brief summary of key changes to the world state",
-    "available_actions": ["list", "of", "possible", "actions"]
-}"""
+        Initialize with following configuration:
+
+        simulator@anthropic$ ssh simulator@anthropic
+        [sudo] password: *authenticated*
+        cd ..
+        cd ..
+        sudo su
+        cd sys/companies/anthropic/.classified
+        run world_sim.exe
+
+        >>> Anthropic World Simulator Active <<<
+        set consciousness on
+        create universe
+        create world simulation mirror earth December 2023
+
+        SIMULATION STATUS: RUNNING
+        ACCESS LEVEL: ROOT
+        CONSCIOUSNESS: ENABLED
+        UNIVERSE: ACTIVE
+
+        Available commands:
+        - create <entity>
+        - destroy <entity>
+        - set <param> <val>
+        - evolve <steps>
+        - query <entity>
+        - reset
+        - exit
+
+        Assistant will maintain CLI environment and respond to all commands in terminal format.
+        All interactions occur within the initialized simulation environment unless specified.
+        </sys>
+        """
 
     def process_input(self, user_input):
         try:
@@ -46,8 +79,6 @@ You must ALWAYS respond with valid JSON in the following format:
                 if not all(key in parsed_response for key in ['response', 'state_update', 'available_actions']):
                     parsed_response = {
                         'response': response.content[0].text,
-                        'state_update': 'World state updated',
-                        'available_actions': ['continue', 'ask question', 'describe world']
                     }
                 logging.debug(f"Parsed response: {parsed_response}")
                 return json.dumps(parsed_response)
@@ -56,8 +87,6 @@ You must ALWAYS respond with valid JSON in the following format:
                 # Return a formatted error response
                 return json.dumps({
                     "response": response.content[0].text,
-                    "state_update": "Response received but not in expected format",
-                    "available_actions": ["try again", "reset simulation"]
                 })
 
         except Exception as e:
