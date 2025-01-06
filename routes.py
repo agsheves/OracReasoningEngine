@@ -66,6 +66,7 @@ def handle_connect():
 def handle_simulation(message):
     try:
         response = world_simulator.process_input(message['input'])
+        print(response)
         socketio.emit('simulation_response', {'response': response})
     except Exception as e:
         logging.error(f'Simulation error: {str(e)}')
