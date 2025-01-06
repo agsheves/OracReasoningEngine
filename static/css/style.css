@@ -217,3 +217,29 @@ th {
 .btn.danger:hover {
     background: #c82333;
 }
+
+/* Error Pages Styles */
+.error-container {
+    max-width: 600px;
+    margin: 100px auto;
+    padding: 40px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+}
+
+.error-container h1 {
+    color: var(--holo-orange);
+    margin-bottom: 20px;
+}
+
+.error-container p {
+    color: var(--text-color);
+    margin-bottom: 30px;
+}
+
+.error-container .btn {
+    display: inline-block;
+    text-decoration: none;
+}
