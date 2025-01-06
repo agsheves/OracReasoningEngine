@@ -149,3 +149,68 @@ header {
     80% { content: '....'; }
     100% { content: '.....'; }
 }
+
+/* Admin Styles */
+.admin-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.users-list {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    color: var(--text-color);
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+th {
+    background: rgba(255, 255, 255, 0.1);
+    font-weight: 500;
+}
+
+.badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8em;
+}
+
+.badge.admin {
+    background: var(--holo-orange);
+    color: var(--stark-white);
+}
+
+.badge.validated {
+    background: #28a745;
+    color: var(--stark-white);
+}
+
+.badge.pending {
+    background: #ffc107;
+    color: #000;
+}
+
+.btn.sm {
+    padding: 4px 8px;
+    font-size: 0.9em;
+}
+
+.btn.danger {
+    background: #dc3545;
+}
+
+.btn.danger:hover {
+    background: #c82333;
+}
