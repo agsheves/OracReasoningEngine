@@ -42,16 +42,23 @@ You must ALWAYS respond with valid JSON in the following format:
             try:
                 # Parse the response text as JSON
                 parsed_response = json.loads(response.content[0].text)
+                # Ensure we have all required fields
+                if not all(key in parsed_response for key in ['response', 'state_update', 'available_actions']):
+                    parsed_response = {
+                        'response': response.content[0].text,
+                        'state_update': 'World state updated',
+                        'available_actions': ['continue', 'ask question', 'describe world']
+                    }
                 logging.debug(f"Parsed response: {parsed_response}")
-                return parsed_response
+                return json.dumps(parsed_response)
             except json.JSONDecodeError as je:
                 logging.error(f"JSON parsing error: {je}")
                 # Return a formatted error response
-                return {
-                    "response": "I apologize, but I encountered an error processing the world simulation. Please try again.",
-                    "state_update": "Error in processing",
+                return json.dumps({
+                    "response": response.content[0].text,
+                    "state_update": "Response received but not in expected format",
                     "available_actions": ["try again", "reset simulation"]
-                }
+                })
 
         except Exception as e:
             logging.error(f"Error in simulation processing: {str(e)}")

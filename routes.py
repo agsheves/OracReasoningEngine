@@ -4,6 +4,7 @@ from models import User, SimulationSession
 from app import db, socketio
 from simulation import WorldSimulator
 import logging
+import json
 
 main = Blueprint('main', __name__)
 world_simulator = WorldSimulator()
@@ -66,7 +67,7 @@ def handle_connect():
 def handle_simulation(message):
     try:
         response = world_simulator.process_input(message['input'])
-        print(response)
+        logging.debug(f"Simulation response: {response}")
         socketio.emit('simulation_response', {'response': response})
     except Exception as e:
         logging.error(f'Simulation error: {str(e)}')

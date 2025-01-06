@@ -14,6 +14,13 @@ socket.on('simulation_response', (data) => {
         content.textContent = response.response;
         messageElement.appendChild(content);
 
+        if (response.state_update) {
+            const stateUpdate = document.createElement('div');
+            stateUpdate.classList.add('state-update');
+            stateUpdate.textContent = `State Update: ${response.state_update}`;
+            messageElement.appendChild(stateUpdate);
+        }
+
         if (response.available_actions && response.available_actions.length > 0) {
             const actions = document.createElement('div');
             actions.classList.add('available-actions');
