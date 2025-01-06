@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const sendButton = document.getElementById('send-button');
     const chatWindow = document.getElementById('chat-window');
     const exportButton = document.getElementById('export-chat');
+    const loadingIndicator = document.getElementById('loading-indicator');
 
     function addMessage(message, isUser = false) {
         const messageElement = document.createElement('div');
@@ -17,12 +18,22 @@ document.addEventListener('DOMContentLoaded', function() {
         chatWindow.scrollTop = chatWindow.scrollHeight;
     }
 
+    function setLoading(isLoading) {
+        loadingIndicator.style.display = isLoading ? 'block' : 'none';
+        sendButton.disabled = isLoading;
+        messageInput.disabled = isLoading;
+        if (isLoading) {
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+    }
+
     function handleInput() {
         const message = messageInput.value.trim();
         if (message) {
             addMessage(message, true);
             socket.emit('simulate', { input: message });
             messageInput.value = '';
+            setLoading(true);
         }
     }
 
@@ -54,4 +65,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     exportButton.addEventListener('click', exportChat);
+
+    // Make the setLoading function available globally
+    window.setLoading = setLoading;
 });

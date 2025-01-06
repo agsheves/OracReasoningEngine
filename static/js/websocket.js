@@ -36,6 +36,9 @@ socket.on('simulation_response', (data) => {
 
     document.getElementById('chat-window').appendChild(messageElement);
     document.getElementById('chat-window').scrollTop = document.getElementById('chat-window').scrollHeight;
+
+    // Hide loading indicator when response is received
+    window.setLoading(false);
 });
 
 socket.on('simulation_error', (data) => {
@@ -43,8 +46,13 @@ socket.on('simulation_error', (data) => {
     messageElement.classList.add('message', 'error-message');
     messageElement.textContent = 'Error: ' + data.error;
     document.getElementById('chat-window').appendChild(messageElement);
+
+    // Hide loading indicator on error
+    window.setLoading(false);
 });
 
 socket.on('disconnect', () => {
     console.log('Disconnected from server');
+    // Hide loading indicator on disconnect
+    window.setLoading(false);
 });
