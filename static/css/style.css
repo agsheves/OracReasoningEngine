@@ -130,11 +130,14 @@ header {
 
 .loading-indicator {
     display: none;
-    margin: 10px 0;
+    margin: 10px auto;
     padding: 10px;
     text-align: center;
     color: var(--holo-orange);
     font-size: 1.2em;
+    max-width: 300px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 5px;
 }
 
 .loading-dots::after {
