@@ -31,9 +31,6 @@ def create_app():
     db.init_app(app)
     socketio.init_app(app, cors_allowed_origins="*")
 
-    # Initialize Replit authentication
-    web.auth.signup(app)  
-
     with app.app_context():
         # Import parts of our application
         from models import User
@@ -42,5 +39,8 @@ def create_app():
         # Register blueprints
         from routes import main as main_blueprint
         app.register_blueprint(main_blueprint)
+
+        # Initialize Replit authentication after blueprint registration
+        web.auth.use_repl_auth(app)
 
         return app

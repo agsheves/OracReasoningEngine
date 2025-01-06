@@ -7,9 +7,14 @@ class User(db.Model):
     username = db.Column(db.String(64), unique=True, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+    def __repr__(self):
+        return f'<User {self.username}>'
+
 class SimulationSession(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     started_at = db.Column(db.DateTime, default=datetime.utcnow)
     last_interaction = db.Column(db.DateTime, default=datetime.utcnow)
     world_state = db.Column(db.Text)
+
+    user = db.relationship('User', backref=db.backref('sessions', lazy=True))
