@@ -61,7 +61,7 @@ class WorldSimulator:
             # Create a structured request with system as top-level parameter
             response = self.client.messages.create(
                 model="claude-3-opus-20240229",
-                max_tokens=1024,
+                max_tokens=2000,
                 messages=[{
                     "role": "user",
                     "content": user_input
