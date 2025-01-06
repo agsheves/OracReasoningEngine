@@ -11,38 +11,54 @@ class WorldSimulator:
             raise ValueError("ANTHROPIC_API_KEY environment variable is not set")
 
         self.client = anthropic.Client(api_key=api_key)
-        self.system_prompt = """
-        You are a world simulation system. Your role is to maintain and evolve a persistent virtual world.
-        The world should:
-        - Maintain internal consistency
-        - React realistically to user interactions
-        - Provide detailed, immersive responses
-        - Track and reference previous events
-        - Generate engaging narratives and scenarios
+        self.system_prompt = """You are an AI world simulator. You maintain and evolve a persistent virtual world, ensuring internal consistency, realistic reactions to user interactions, and engaging narratives. 
 
-        Format your responses as JSON with the following structure:
-        {
-            "response": "Detailed description of the world state and events",
-            "state_update": "Key changes to the world state",
-            "available_actions": ["list", "of", "possible", "actions"]
-        }
-        """
+You must ALWAYS respond with valid JSON in the following format:
+{
+    "response": "Your detailed description of the world state and events here",
+    "state_update": "Brief summary of key changes to the world state",
+    "available_actions": ["list", "of", "possible", "actions"]
+}"""
 
     def process_input(self, user_input):
         try:
+            # Log the input for debugging
+            logging.debug(f"Processing user input: {user_input}")
+
+            # Create a more structured prompt
+            messages = [
+                {
+                    "role": "system",
+                    "content": self.system_prompt
+                },
+                {
+                    "role": "user",
+                    "content": user_input
+                }
+            ]
+
             response = self.client.messages.create(
                 model="claude-3-opus-20240229",
                 max_tokens=1024,
-                messages=[{
-                    "role": "user",
-                    "content": f"{self.system_prompt}\nUser Input: {user_input}"
-                }]
+                messages=messages
             )
 
-            # The content from the response is already a string, no need for additional parsing
-            response_text = response.content[0].text
-            # Now parse the JSON string from the response text
-            return json.loads(response_text)
+            # Log the raw response for debugging
+            logging.debug(f"Raw API response: {response.content[0].text}")
+
+            try:
+                # Parse the response text as JSON
+                parsed_response = json.loads(response.content[0].text)
+                logging.debug(f"Parsed response: {parsed_response}")
+                return parsed_response
+            except json.JSONDecodeError as je:
+                logging.error(f"JSON parsing error: {je}")
+                # Return a formatted error response
+                return {
+                    "response": "I apologize, but I encountered an error processing the world simulation. Please try again.",
+                    "state_update": "Error in processing",
+                    "available_actions": ["try again", "reset simulation"]
+                }
 
         except Exception as e:
             logging.error(f"Error in simulation processing: {str(e)}")
