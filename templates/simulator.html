@@ -5,6 +5,7 @@
     <header>
         <h1>WorldSim Simulator</h1>
         <div class="header-actions">
+            <span class="user-info">Welcome, {{ g.user.username }}</span>
             <button id="export-chat" class="btn">Export Chat</button>
             <a href="{{ url_for('main.logout') }}" class="btn">Logout</a>
         </div>
@@ -24,7 +25,6 @@
         <button id="send-button" class="btn">Send</button>
     </div>
 </div>
-
 {% endblock %}
 
 {% block scripts %}

@@ -74,11 +74,22 @@ header {
 }
 
 .message {
+    position: relative;
     margin: 15px 0;
     padding: 15px;
     border-radius: 5px;
     background: rgba(255, 255, 255, 0.1);
-    white-space: pre-line;
+}
+
+.message-content {
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.message-timestamp {
+    font-size: 0.8em;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 5px;
 }
 
 .message p {
@@ -135,6 +146,15 @@ header {
     text-align: center;
     color: var(--holo-orange);
     font-size: 1.2em;
+    background: rgba(255, 123, 0, 0.1);
+    border-radius: 5px;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
 }
 
 .loading-dots::after {
@@ -149,6 +169,34 @@ header {
     80% { content: '....'; }
     100% { content: '.....'; }
 }
+
+.copy-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+}
+
+.copy-button:hover {
+    opacity: 1;
+}
+
+
+.error-message {
+    background: rgba(220, 53, 69, 0.1);
+    border-left: 3px solid #dc3545;
+}
+
+::selection {
+    background: var(--holo-orange);
+    color: var(--stark-white);
+}
+
 
 /* Admin Styles */
 .admin-container {

@@ -1,5 +1,6 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
-from flask_login import login_user, logout_user, login_required, current_user
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, g
+from replit import db as replit_db
+from replit import web
 from models import User, SimulationSession
 from app import db, socketio
 from simulation import WorldSimulator
@@ -9,112 +10,75 @@ import json
 main = Blueprint('main', __name__)
 world_simulator = WorldSimulator()
 
+@main.before_request
+def get_current_user():
+    try:
+        g.user = None
+        auth_user = web.auth.authenticate()
+        if auth_user:
+            user = User.query.filter_by(replit_id=str(auth_user.id)).first()
+            if not user:
+                user = User(replit_id=str(auth_user.id), username=auth_user.name)
+                db.session.add(user)
+                try:
+                    db.session.commit()
+                except Exception as e:
+                    logging.error(f"Error creating user: {str(e)}")
+                    db.session.rollback()
+            g.user = user
+    except Exception as e:
+        logging.error(f"Auth error: {str(e)}")
+        pass
+
 @main.route('/')
-@login_required
 def index():
-    return render_template('simulator.html')
+    try:
+        auth_user = web.auth.authenticate()
+        if not auth_user:
+            return """
+                <h1>Welcome to WorldSim</h1>
+                <p>Please <a href="/login">sign in with Replit</a> to continue.</p>
+            """
+        return render_template('simulator.html')
+    except Exception as e:
+        logging.error(f"Index route error: {str(e)}")
+        return """
+            <h1>Welcome to WorldSim</h1>
+            <p>Please <a href="/login">sign in with Replit</a> to continue.</p>
+        """
 
-@main.route('/register', methods=['GET', 'POST'])
-def register():
-    if current_user.is_authenticated:
-        return redirect(url_for('main.index'))
-
-    if request.method == 'POST':
-        user = User.query.filter_by(username=request.form['username']).first()
-        if user:
-            flash('Username already exists')
-            return redirect(url_for('main.register'))
-
-        user = User(username=request.form['username'], email=request.form['email'])
-        user.set_password(request.form['password'])
-        db.session.add(user)
-        try:
-            db.session.commit()
-            login_user(user)
-            return redirect(url_for('main.index'))
-        except Exception as e:
-            logging.error(f"Registration error: {str(e)}")
-            db.session.rollback()
-            flash('Registration failed. Please try again.')
-
-    return render_template('register.html')
-
-@main.route('/login', methods=['GET', 'POST'])
+@main.route('/login')
 def login():
-    if current_user.is_authenticated:
-        return redirect(url_for('main.index'))
-
-    if request.method == 'POST':
-        user = User.query.filter_by(username=request.form['username']).first()
-        if user and user.check_password(request.form['password']):
-            login_user(user)
-            return redirect(url_for('main.index'))
-        flash('Invalid username or password')
-    return render_template('login.html')
+    return redirect(web.auth.login_url())
 
 @main.route('/logout')
-@login_required
 def logout():
-    logout_user()
-    return redirect(url_for('main.login'))
-
-# Admin routes for user management
-@main.route('/admin/users')
-@login_required
-def admin_users():
-    if not current_user.is_admin:
-        flash('Access denied')
-        return redirect(url_for('main.index'))
-    users = User.query.all()
-    return render_template('admin/users.html', users=users)
-
-@main.route('/admin/users/validate/<int:user_id>')
-@login_required
-def validate_user(user_id):
-    if not current_user.is_admin:
-        flash('Access denied')
-        return redirect(url_for('main.index'))
-
-    user = User.query.get_or_404(user_id)
-    user.is_validated = True
-    try:
-        db.session.commit()
-        flash(f'User {user.username} has been validated')
-    except Exception as e:
-        logging.error(f"Validation error: {str(e)}")
-        db.session.rollback()
-        flash('Validation failed')
-    return redirect(url_for('main.admin_users'))
-
-@main.route('/admin/users/delete/<int:user_id>')
-@login_required
-def delete_user(user_id):
-    if not current_user.is_admin:
-        flash('Access denied')
-        return redirect(url_for('main.index'))
-
-    user = User.query.get_or_404(user_id)
-    if user.id == current_user.id:
-        flash('Cannot delete your own account')
-        return redirect(url_for('main.admin_users'))
-
-    try:
-        db.session.delete(user)
-        db.session.commit()
-        flash(f'User {user.username} has been deleted')
-    except Exception as e:
-        logging.error(f"Deletion error: {str(e)}")
-        db.session.rollback()
-        flash('Deletion failed')
-    return redirect(url_for('main.admin_users'))
+    return redirect(web.auth.logout_url())
 
 @socketio.on('connect')
-@login_required
 def handle_connect():
-    logging.debug(f'Client connected: {current_user.username}')
+    try:
+        auth_user = web.auth.authenticate()
+        if not auth_user:
+            return False
+        logging.debug(f'Client connected: {auth_user.name}')
+        return True
+    except Exception as e:
+        logging.error(f"Socket connect error: {str(e)}")
+        return False
 
 @socketio.on('simulate')
 def handle_simulation(message):
+    try:
+        auth_user = web.auth.authenticate()
+        if not auth_user:
+            socketio.emit('simulation_error', {'error': 'Authentication required'})
+            return
+    except Exception as e:
+        logging.error(f"Simulation auth error: {str(e)}")
+        socketio.emit('simulation_error', {'error': 'Authentication required'})
+        return
+
     try:
         response = world_simulator.process_input(message['input'])
         logging.debug(f"Simulation response: {response}")
