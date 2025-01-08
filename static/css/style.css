@@ -145,16 +145,14 @@ header {
 
 .loading-indicator {
     visibility: hidden;
-    margin: 10px auto;
+    margin: 10px 20px;
     padding: 10px;
-    text-align: center;
+    text-align: left;
     color: var(--holo-orange);
     font-size: 1.2em;
     max-width: 300px;
     background: rgba(255, 255, 255, 0.05);
     border-radius: 5px;
-    position: relative;
-    top: -20px;
 }
 
 .loading-dots::after {
