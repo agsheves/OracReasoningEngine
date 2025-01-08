@@ -156,6 +156,13 @@ header {
     max-width: 300px;
     background: rgba(255, 255, 255, 0.05);
     border-radius: 5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.loading-text {
+    font-weight: 500;
 }
 
 .loading-dots::after {
