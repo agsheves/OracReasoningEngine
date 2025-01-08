@@ -79,6 +79,21 @@ header {
     border-radius: 5px;
     background: rgba(255, 255, 255, 0.1);
     white-space: pre-line;
+    max-width: 80%;
+}
+
+.user-message {
+    margin-left: auto;
+    margin-right: 20px;
+    background: rgba(255, 123, 0, 0.2);
+    border-left: 3px solid var(--holo-orange);
+}
+
+.system-message {
+    margin-right: auto;
+    margin-left: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-right: 3px solid var(--stark-white);
 }
 
 .message p {
@@ -129,7 +144,7 @@ header {
 }
 
 .loading-indicator {
-    display: none;
+    visibility: hidden;
     margin: 10px auto;
     padding: 10px;
     text-align: center;

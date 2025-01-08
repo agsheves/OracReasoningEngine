@@ -5,7 +5,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const exportButton = document.getElementById('export-chat');
     const loadingIndicator = document.getElementById('loading-indicator');
 
+    // Keep track of whether it's the first message
+    let isFirstMessage = true;
+
     function addMessage(message, isUser = false) {
+        if (isFirstMessage && !isUser) {
+            // Clear default welcome message when first user message is sent
+            chatWindow.innerHTML = '';
+            isFirstMessage = false;
+        }
+
         const messageElement = document.createElement('div');
         messageElement.classList.add('message');
         messageElement.classList.add(isUser ? 'user-message' : 'system-message');
@@ -19,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function setLoading(isLoading) {
-        loadingIndicator.style.display = isLoading ? 'block' : 'none';
+        loadingIndicator.style.visibility = isLoading ? 'visible' : 'hidden';
         sendButton.disabled = isLoading;
         messageInput.disabled = isLoading;
         if (isLoading) {

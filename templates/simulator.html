@@ -3,7 +3,7 @@
 {% block content %}
 <div class="simulator-container">
     <header>
-        <h1>WorldSim Simulator</h1>
+        <h1>Decis WorldSim</h1>
         <div class="header-actions">
             <button id="export-chat" class="btn">Export Chat</button>
             <a href="{{ url_for('main.logout') }}" class="btn">Logout</a>
@@ -12,17 +12,24 @@
 
     <div id="chat-window" class="chat-window">
         <div class="message system-message">
-            <p>Welcome to WorldSim. Your simulation is ready to begin.</p>
+            <p>Welcome to WorldSim! 🌎</p>
+            <p>I am your AI-powered world simulation assistant. You can ask me to:</p>
+            <ul>
+                <li>Create and modify virtual environments</li>
+                <li>Simulate scenarios and their outcomes</li>
+                <li>Answer questions about the simulation</li>
+            </ul>
+            <p>What would you like to simulate today?</p>
         </div>
     </div>
 
     <div class="input-area">
-        <input type="text" id="message-input" placeholder="Enter your action...">
+        <input type="text" id="message-input" placeholder="Enter your scenario...">
         <button id="send-button" class="btn">Send</button>
     </div>
 
     <div id="loading-indicator" class="loading-indicator">
-        Analyzing request<span class="loading-dots"></span>
+        <span class="loading-dots"></span>
     </div>
 </div>
 {% endblock %}
