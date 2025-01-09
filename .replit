@@ -19,6 +19,14 @@ author = "agent"
 task = "workflow.run"
 args = "Start application"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Test Runner"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Test Routing"
+
 [[workflows.workflow]]
 name = "Start application"
 author = "agent"
@@ -33,6 +41,34 @@ task = "packager.installForAll"
 task = "shell.exec"
 args = "python main.py"
 waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Test Runner"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python tests/test_simulation.py"
+
+[[workflows.workflow]]
+name = "Test Routing"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python tests/test_routing.py"
 
 [[ports]]
 localPort = 5000
