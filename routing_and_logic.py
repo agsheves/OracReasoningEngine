@@ -2,8 +2,7 @@ import anthropic
 import os
 import json
 import logging
-from datetime import datetime
-from typing import Tuple, Dict, Optional
+from typing import Tuple, Optional
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -17,7 +16,7 @@ if not api_key:
 client = anthropic.Client(api_key=api_key)
 
 # Define available heuristics with descriptions
-HEURISTIC_LIST: Dict[str, str] = {
+HEURISTIC_LIST = {
     'negotiation': "Simulation heuristic for negotiation scenarios and diplomatic interactions",
     'kidnapping': "Crisis response heuristic for hostage and kidnapping situations",
     'geopolitics': "Analysis heuristic for international relations and political dynamics",
@@ -28,11 +27,19 @@ def check_shortcode(message: str) -> Optional[str]:
     Check if message contains a valid heuristic shortcode.
     Returns the heuristic name if found, None otherwise.
     """
-    # Check for shortcode format "/heuristic"
-    for heuristic in HEURISTIC_LIST.keys():
-        if f"/{heuristic}" in message.lower():
-            logger.debug(f"Found shortcode for heuristic: {heuristic}")
-            return heuristic
+    if not message:
+        return None
+
+    words = message.lower().split()
+    for word in words:
+        if word.startswith('/'):
+            # Remove the '/' and check if it's a valid heuristic
+            potential_heuristic = word[1:]
+            if potential_heuristic in HEURISTIC_LIST:
+                logger.debug(f"Found valid shortcode: {potential_heuristic}")
+                return potential_heuristic
+
+    logger.debug("No valid shortcode found")
     return None
 
 def match_heuristic_with_llm(message: str) -> Tuple[str, str]:
@@ -44,7 +51,7 @@ def match_heuristic_with_llm(message: str) -> Tuple[str, str]:
 
     # Construct the prompt for Claude
     heuristic_options = "\n".join([f"- {key}: {value}" for key, value in HEURISTIC_LIST.items()])
-
+    
     system_prompt = f"""
     Analyze the following message and determine which heuristic best matches its content.
     Available heuristics:
@@ -71,7 +78,6 @@ def match_heuristic_with_llm(message: str) -> Tuple[str, str]:
             system=system_prompt
         )
 
-        # Parse the response
         try:
             result = json.loads(response.content[0].text)
             heuristic = result.get('heuristic', 'none')
@@ -79,7 +85,6 @@ def match_heuristic_with_llm(message: str) -> Tuple[str, str]:
 
             logger.debug(f"LLM matched heuristic: {heuristic} with confidence: {confidence}")
 
-            # Only accept matches with confidence > 0.7
             if heuristic != 'none' and confidence > 0.7:
                 return heuristic, HEURISTIC_LIST[heuristic]
             return 'none', 'No matching heuristic found'
