@@ -41,6 +41,30 @@ socket.on('simulation_response', (data) => {
     window.setLoading(false);
 });
 
+socket.on('simulation_confirmation', (data) => {
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('message', 'system-message');
+
+    const content = document.createElement('div');
+    content.innerHTML = `
+        <h3>Scenario Analysis:</h3>
+        <p><strong>Heuristic:</strong> ${data.heuristic}</p>
+        <p><strong>Type:</strong> ${data.heuristic_description}</p>
+        <pre>${data.scenario}</pre>
+        <div class="confirmation-buttons">
+            <button onclick="confirmSimulation(true)" class="btn">Confirm</button>
+            <button onclick="confirmSimulation(false)" class="btn">Cancel</button>
+        </div>
+    `;
+    messageElement.appendChild(content);
+
+    document.getElementById('chat-window').appendChild(messageElement);
+    document.getElementById('chat-window').scrollTop = document.getElementById('chat-window').scrollHeight;
+
+    // Hide loading indicator when confirmation is requested
+    window.setLoading(false);
+});
+
 socket.on('simulation_error', (data) => {
     const messageElement = document.createElement('div');
     messageElement.classList.add('message', 'error-message');
@@ -56,3 +80,11 @@ socket.on('disconnect', () => {
     // Hide loading indicator on disconnect
     window.setLoading(false);
 });
+
+// Add to global scope for button onclick handlers
+window.confirmSimulation = function(confirmed) {
+    socket.emit('confirm_simulation', confirmed);
+    if (confirmed) {
+        window.setLoading(true);
+    }
+}

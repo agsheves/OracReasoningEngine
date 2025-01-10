@@ -4,11 +4,14 @@ import json
 import logging
 from datetime import datetime
 
+
 class WorldSimulator:
+
     def __init__(self):
         api_key = os.environ.get('ANTHROPIC_API_KEY')
         if not api_key:
-            raise ValueError("ANTHROPIC_API_KEY environment variable is not set")
+            raise ValueError(
+                "ANTHROPIC_API_KEY environment variable is not set")
 
         self.client = anthropic.Client(api_key=api_key)
         self.system_prompt = """
@@ -70,8 +73,7 @@ class WorldSimulator:
                     "role": "user",
                     "content": user_input
                 }],
-                system=self.system_prompt
-            )
+                system=self.system_prompt)
 
             # Log the raw response for debugging
             logging.debug(f"Raw API response: {response.content[0].text}")
@@ -86,9 +88,19 @@ class WorldSimulator:
                 # Parse as JSON if possible for structured output
                 try:
                     parsed_response = {
-                        'response': content,
-                        'state_update': response.content[0].text.split('State Update:')[-1].split('\n')[0].strip() if 'State Update:' in response.content[0].text else None,
-                        'available_actions': [action.strip() for action in response.content[0].text.split('Available actions:')[-1].split('\n')[0].split(',')] if 'Available actions:' in response.content[0].text else []
+                        'response':
+                        content,
+                        'state_update':
+                        response.content[0].text.split(
+                            'State Update:')[-1].split('\n')[0].strip() if
+                        'State Update:' in response.content[0].text else None,
+                        'available_actions': [
+                            action.strip()
+                            for action in response.content[0].text.split(
+                                'Available actions:')[-1].split('\n')[0].split(
+                                    ',')
+                        ] if 'Available actions:' in response.content[0].text
+                        else []
                     }
                     return json.dumps(parsed_response)
                 except:

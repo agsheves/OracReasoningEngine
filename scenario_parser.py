@@ -1,8 +1,15 @@
 import json
 import logging
 from typing import Dict, Optional
+import os
+import anthropic
 
 logger = logging.getLogger(__name__)
+api_key = os.environ.get('ANTHROPIC_API_KEY')
+if not api_key:
+    raise ValueError("ANTHROPIC_API_KEY environment variable is not set")
+
+client = anthropic.Client(api_key=api_key)
 
 class ScenarioParser:
     def __init__(self):
@@ -22,42 +29,53 @@ class ScenarioParser:
             3. Specific conditions or rules
             4. Key parameters or variables
 
+            For geopolitical scenarios, consider:
+            - International relations
+            - Economic factors
+            - Strategic implications
+            - Current global context
+
             Respond in JSON format with these fields:
             {
                 "goal": "clear statement of the main objective",
                 "constraints": ["list of time or resource constraints"],
                 "conditions": ["list of specific rules or conditions"],
-                "parameters": {"key": "value"} // optional additional parameters
+                "parameters": {
+                    "key": "value",
+                    "entities": ["list of involved entities"],
+                    "timeline": "relevant timeframe"
+                }
             }
             """
 
-            from simulation import world_simulator
-            response = world_simulator.client.messages.create(
+            response = client.messages.create(
                 model="claude-3-opus-20240229",
                 max_tokens=2000,
                 messages=[{
                     "role": "user",
                     "content": user_input
                 }],
-                system=system_prompt
-            )
+                system=system_prompt)
 
             # Parse the structured response
-            parsed_json = json.loads(response.content[0].text)
-            
-            # Validate required fields
-            for field in self.required_fields:
-                if field not in parsed_json:
-                    raise ValueError(f"Missing required field: {field}")
+            try:
+                parsed_json = json.loads(response.content[0].text)
+                logger.debug(f"Parsed scenario: {parsed_json}")
 
-            return parsed_json
+                # Validate required fields
+                for field in self.required_fields:
+                    if field not in parsed_json:
+                        raise ValueError(f"Missing required field: {field}")
 
-        except json.JSONDecodeError as e:
-            logger.error(f"Failed to parse scenario JSON: {e}")
-            raise ValueError("Failed to parse scenario into structured format")
+                return parsed_json
+
+            except json.JSONDecodeError as je:
+                logger.error(f"Failed to parse scenario JSON: {je}")
+                raise ValueError("Failed to parse scenario into structured format")
+
         except Exception as e:
             logger.error(f"Error in scenario parsing: {e}")
-            raise
+            raise ValueError(f"Failed to process scenario: {str(e)}")
 
     def format_for_display(self, parsed_scenario: Dict) -> str:
         """
