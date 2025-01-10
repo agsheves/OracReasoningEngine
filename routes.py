@@ -116,9 +116,37 @@ def handle_connect():
 @socketio.on('simulate')
 def handle_simulation(message):
     try:
-        response = world_simulator.process_input(message['input'])
-        logging.debug(f"Simulation response: {response}")
-        socketio.emit('simulation_response', {'response': response})
+        # First, process the scenario
+        scenario_data = routing_and_logic.process_scenario(message['input'])
+
+        # Emit the formatted scenario for confirmation
+        socketio.emit('simulation_confirmation', {
+            'scenario': scenario_data['display_format'],
+            'heuristic': scenario_data['heuristic'],
+            'heuristic_description': scenario_data['heuristic_description']
+        })
+
+        # Store the parsed scenario in the session for later use
+        current_user.session = scenario_data['parsed_scenario']
+        db.session.commit()
+
+    except Exception as e:
+        logging.error(f'Scenario processing error: {str(e)}')
+        socketio.emit('simulation_error', {'error': 'Failed to process scenario'})
+
+@socketio.on('confirm_simulation')
+def handle_simulation_confirmation(confirmed):
+    try:
+        if confirmed:
+            # Retrieve the stored scenario
+            scenario = current_user.session
+
+            # Process with the world simulator
+            response = world_simulator.process_input(json.dumps(scenario))
+            socketio.emit('simulation_response', {'response': response})
+        else:
+            socketio.emit('simulation_cancelled', {'message': 'Simulation cancelled by user'})
+
     except Exception as e:
         logging.error(f'Simulation error: {str(e)}')
         socketio.emit('simulation_error', {'error': 'Simulation processing failed'})

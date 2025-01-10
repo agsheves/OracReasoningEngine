@@ -2,7 +2,8 @@ import anthropic
 import os
 import json
 import logging
-from typing import Tuple, Optional
+from typing import Tuple, Optional, Dict
+from scenario_parser import ScenarioParser
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -14,6 +15,7 @@ if not api_key:
     raise ValueError("ANTHROPIC_API_KEY environment variable is not set")
 
 client = anthropic.Client(api_key=api_key)
+scenario_parser = ScenarioParser()
 
 # Define available heuristics with descriptions
 HEURISTIC_LIST = {
@@ -51,7 +53,7 @@ def match_heuristic_with_llm(message: str) -> Tuple[str, str]:
 
     # Construct the prompt for Claude
     heuristic_options = "\n".join([f"- {key}: {value}" for key, value in HEURISTIC_LIST.items()])
-    
+
     system_prompt = f"""
     Analyze the following message and determine which heuristic best matches its content.
     Available heuristics:
@@ -96,6 +98,50 @@ def match_heuristic_with_llm(message: str) -> Tuple[str, str]:
     except Exception as e:
         logger.error(f"Error in LLM matching: {e}")
         return 'none', 'Error in processing'
+
+def process_scenario(message: str) -> Dict:
+    """
+    Complete workflow for processing a scenario:
+    1. Route to appropriate heuristic
+    2. Parse scenario details
+    3. Return formatted scenario for confirmation
+
+    Returns a dictionary containing:
+    - heuristic: the matched heuristic
+    - parsed_scenario: structured scenario details
+    - display_format: human-readable format for confirmation
+    """
+    logger.info("Processing new scenario request")
+
+    # Step 1: Route to appropriate heuristic
+    shortcode_match = check_shortcode(message)
+    if shortcode_match:
+        heuristic = shortcode_match
+        heuristic_desc = HEURISTIC_LIST[shortcode_match]
+    else:
+        heuristic, heuristic_desc = match_heuristic_with_llm(message)
+        if heuristic == 'none':
+            raise ValueError("Could not match scenario to any available heuristic")
+
+    # Step 2: Parse scenario details
+    try:
+        parsed_scenario = scenario_parser.parse_scenario(message)
+        # Add the matched heuristic to the scenario parameters
+        parsed_scenario['parameters'] = parsed_scenario.get('parameters', {})
+        parsed_scenario['parameters']['heuristic'] = heuristic
+
+        # Step 3: Format for display
+        display_format = scenario_parser.format_for_display(parsed_scenario)
+
+        return {
+            'heuristic': heuristic,
+            'heuristic_description': heuristic_desc,
+            'parsed_scenario': parsed_scenario,
+            'display_format': display_format
+        }
+    except Exception as e:
+        logger.error(f"Error processing scenario: {e}")
+        raise
 
 def initial_routing(message: str) -> str:
     """
