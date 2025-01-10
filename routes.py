@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user, login_required, current_user
 from models import User, SimulationSession
 from app import db, socketio
+import routing_and_logic
 from simulation import WorldSimulator
 import logging
 import json
@@ -116,6 +117,7 @@ def handle_connect():
 @socketio.on('simulate')
 def handle_simulation(message):
     try:
+        logging.debug(f'Processing simulation request: {message["input"]}')
         # First, process the scenario
         scenario_data = routing_and_logic.process_scenario(message['input'])
 
@@ -126,22 +128,32 @@ def handle_simulation(message):
             'heuristic_description': scenario_data['heuristic_description']
         })
 
-        # Store the parsed scenario in the session for later use
-        current_user.session = scenario_data['parsed_scenario']
+        # Store the parsed scenario in the session
+        session = SimulationSession(
+            user_id=current_user.id,
+            world_state=json.dumps(scenario_data['parsed_scenario'])
+        )
+        db.session.add(session)
         db.session.commit()
 
     except Exception as e:
         logging.error(f'Scenario processing error: {str(e)}')
-        socketio.emit('simulation_error', {'error': 'Failed to process scenario'})
+        socketio.emit('simulation_error', {'error': str(e)})
 
 @socketio.on('confirm_simulation')
 def handle_simulation_confirmation(confirmed):
     try:
         if confirmed:
-            # Retrieve the stored scenario
-            scenario = current_user.session
+            # Get the latest session for the user
+            session = SimulationSession.query.filter_by(
+                user_id=current_user.id
+            ).order_by(SimulationSession.started_at.desc()).first()
+
+            if not session:
+                raise ValueError("No active simulation session found")
 
             # Process with the world simulator
+            scenario = json.loads(session.world_state)
             response = world_simulator.process_input(json.dumps(scenario))
             socketio.emit('simulation_response', {'response': response})
         else:
@@ -149,4 +161,4 @@ def handle_simulation_confirmation(confirmed):
 
     except Exception as e:
         logging.error(f'Simulation error: {str(e)}')
-        socketio.emit('simulation_error', {'error': 'Simulation processing failed'})
+        socketio.emit('simulation_error', {'error': str(e)})

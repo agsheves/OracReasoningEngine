@@ -51,22 +51,18 @@ def match_heuristic_with_llm(message: str) -> Tuple[str, str]:
     """
     logger.debug("Attempting to match message with heuristic using Claude")
 
-    # Construct the prompt for Claude
-    heuristic_options = "\n".join([f"- {key}: {value}" for key, value in HEURISTIC_LIST.items()])
-
-    system_prompt = f"""
-    Analyze the following message and determine which heuristic best matches its content.
-    Available heuristics:
-    {heuristic_options}
+    system_prompt = """
+    Analyze the following scenario and determine which heuristic best matches its content.
+    For geopolitical analysis involving international relations, trade, or political dynamics, use the 'geopolitics' heuristic.
+    For negotiation scenarios involving diplomatic discussions or conflict resolution, use the 'negotiation' heuristic.
+    For crisis scenarios involving immediate threats or hostage situations, use the 'kidnapping' heuristic.
 
     Respond in JSON format only:
-    {{
-        "heuristic": "<heuristic_name>",
+    {
+        "heuristic": "geopolitics|negotiation|kidnapping|none",
         "confidence": <float between 0 and 1>,
         "reasoning": "<brief explanation>"
-    }}
-
-    If no heuristic matches well, use "none" as the heuristic name.
+    }
     """
 
     try:
@@ -150,13 +146,11 @@ def initial_routing(message: str) -> str:
     """
     logger.debug(f"Processing message for routing: {message}")
 
-    # First check for shortcode
     shortcode_match = check_shortcode(message)
     if shortcode_match:
         logger.info(f"Routing via shortcode to heuristic: {shortcode_match}")
         return HEURISTIC_LIST[shortcode_match]
 
-    # If no shortcode, use LLM matching
     logger.debug("No shortcode found, attempting LLM matching")
     heuristic, settings = match_heuristic_with_llm(message)
 
