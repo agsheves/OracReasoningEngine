@@ -1,8 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user, login_required, current_user
-from sqlalchemy import update
 from models import User, SimulationSession
-from routing_and_logic import initial_routing, HEURISTIC_LIST, set_parameters
 from app import db, socketio
 from simulation import WorldSimulator
 import logging
@@ -10,7 +8,6 @@ import json
 
 main = Blueprint('main', __name__)
 world_simulator = WorldSimulator()
-simulation_inputs = {'message':'none','settings':'none','parameters':'none'}
 
 @main.route('/')
 @login_required
@@ -115,15 +112,6 @@ def delete_user(user_id):
 @login_required
 def handle_connect():
     logging.debug(f'Client connected: {current_user.username}')
-
-@socketio.on('get_settings')
-def define_parameters(message):
-    settings = initial_routing(message)
-    self.simulation_settings = update{settings}
-
-@socketio.on('define_parameters')
-def define_parameters(message):
-    parmeters = define_parameters(message)
 
 @socketio.on('simulate')
 def handle_simulation(message):
