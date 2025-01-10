@@ -17,10 +17,14 @@ client = anthropic.Client(api_key=api_key)
 
 # Define available heuristics with descriptions
 HEURISTIC_LIST = {
-    'negotiation': "Simulation heuristic for negotiation scenarios and diplomatic interactions",
-    'kidnapping': "Crisis response heuristic for hostage and kidnapping situations",
-    'geopolitics': "Analysis heuristic for international relations and political dynamics",
+    'negotiation':
+    "Simulation heuristic for negotiation scenarios and diplomatic interactions",
+    'kidnapping':
+    "Crisis response heuristic for hostage and kidnapping situations",
+    'geopolitics':
+    "Analysis heuristic for international relations and political dynamics",
 }
+
 
 def check_shortcode(message: str) -> Optional[str]:
     """
@@ -42,6 +46,7 @@ def check_shortcode(message: str) -> Optional[str]:
     logger.debug("No valid shortcode found")
     return None
 
+
 def match_heuristic_with_llm(message: str) -> Tuple[str, str]:
     """
     Use Claude to match message content with appropriate heuristic.
@@ -50,8 +55,9 @@ def match_heuristic_with_llm(message: str) -> Tuple[str, str]:
     logger.debug("Attempting to match message with heuristic using Claude")
 
     # Construct the prompt for Claude
-    heuristic_options = "\n".join([f"- {key}: {value}" for key, value in HEURISTIC_LIST.items()])
-    
+    heuristic_options = "\n".join(
+        [f"- {key}: {value}" for key, value in HEURISTIC_LIST.items()])
+
     system_prompt = f"""
     Analyze the following message and determine which heuristic best matches its content.
     Available heuristics:
@@ -68,22 +74,22 @@ def match_heuristic_with_llm(message: str) -> Tuple[str, str]:
     """
 
     try:
-        response = client.messages.create(
-            model="claude-3-opus-20240229",
-            max_tokens=2000,
-            messages=[{
-                "role": "user",
-                "content": message
-            }],
-            system=system_prompt
-        )
+        response = client.messages.create(model="claude-3-opus-20240229",
+                                          max_tokens=2000,
+                                          messages=[{
+                                              "role": "user",
+                                              "content": message
+                                          }],
+                                          system=system_prompt)
 
         try:
             result = json.loads(response.content[0].text)
             heuristic = result.get('heuristic', 'none')
             confidence = result.get('confidence', 0.0)
 
-            logger.debug(f"LLM matched heuristic: {heuristic} with confidence: {confidence}")
+            logger.debug(
+                f"LLM matched heuristic: {heuristic} with confidence: {confidence}"
+            )
 
             if heuristic != 'none' and confidence > 0.7:
                 return heuristic, HEURISTIC_LIST[heuristic]
@@ -96,6 +102,7 @@ def match_heuristic_with_llm(message: str) -> Tuple[str, str]:
     except Exception as e:
         logger.error(f"Error in LLM matching: {e}")
         return 'none', 'Error in processing'
+
 
 def initial_routing(message: str) -> str:
     """
@@ -120,3 +127,7 @@ def initial_routing(message: str) -> str:
 
     logger.info(f"Routing via LLM match to heuristic: {heuristic}")
     return settings
+
+
+def set_parameters(message: str) -> str:
+    pass
