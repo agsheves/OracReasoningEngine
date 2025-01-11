@@ -6,6 +6,7 @@ import routing_and_logic
 from simulation import WorldSimulator
 import logging
 import json
+from flask import session
 
 main = Blueprint('main', __name__)
 world_simulator = WorldSimulator()
@@ -14,11 +15,11 @@ world_simulator = WorldSimulator()
 @login_required
 def index():
     # Initialize session variables if they don't exist
+
     if 'user_settings' not in session:
         session['user_settings'] = {
-            'theme': 'light',
             'last_simulation': None,
-            'preferences': {}
+            'first_message': 'True'
         }
     return render_template('simulator.html', settings=session['user_settings'])
 
@@ -130,8 +131,16 @@ def update_session():
         return jsonify({'status': 'success'})
     return jsonify({'status': 'error', 'message': 'Invalid request'}), 400
 
-@socketio.on('simulate')
-def handle_simulation(message):
+@socketio.on('send_message')
+def route_message(message):
+    user_settings = session.get('user_settings', None)
+    if session[user_settings]['first_message'] == False:
+        setup_simulation(message)
+    else:
+        manage_subsequent_messages(message)
+
+
+def setup_simulation(message):
     try:
         logging.debug(f'Processing simulation request: {message["input"]}')
         # First, process the scenario
@@ -157,6 +166,10 @@ def handle_simulation(message):
         logging.error(f'Scenario processing error: {str(e)}')
         socketio.emit('simulation_error', {'error': str(e)})
 
+def manage_subsequent_messages(message):
+    response = "Subsequent messsages will bypass simulation set up"
+    pass
+
 @socketio.on('confirm_simulation')
 def handle_simulation_confirmation(confirmed):
     try:
@@ -173,6 +186,7 @@ def handle_simulation_confirmation(confirmed):
             scenario = json.loads(session.world_state)
             response = world_simulator.process_input(json.dumps(scenario))
             socketio.emit('simulation_response', {'response': response})
+            session['user_settings']['first_message'] = False
         else:
             socketio.emit('simulation_cancelled', {'message': 'Simulation cancelled by user'})
 
