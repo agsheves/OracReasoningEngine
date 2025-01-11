@@ -12,9 +12,7 @@ class User(UserMixin, db.Model):
     is_admin = db.Column(db.Boolean, default=False)
     is_validated = db.Column(db.Boolean, default=False)
     user_settings = db.Column(db.JSON, default=lambda: {
-        'theme': 'dark',
         'language': 'en',
-        'notifications_enabled': True,
         'auto_save': True,
         'display_format': 'detailed',
         'simulation_mode': 'standard'
