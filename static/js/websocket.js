@@ -47,13 +47,37 @@ socket.on('simulation_confirmation', (data) => {
 
     const content = document.createElement('div');
     content.innerHTML = `
-        <h3>Scenario Analysis:</h3>
-        <p><strong>Heuristic:</strong> ${data.heuristic}</p>
-        <p><strong>Type:</strong> ${data.heuristic_description}</p>
-        <pre>${data.scenario}</pre>
+        <h3>📋 Scenario Analysis</h3>
+        <div class="scenario-details">
+            <p><strong>Type:</strong> ${data.heuristic}</p>
+            <div class="scenario-content">
+                ${data.scenario.split('\n').map(line => {
+                    // Skip empty lines
+                    if (!line.trim()) return '';
+
+                    // Format section headers
+                    if (line.includes('===')) {
+                        return `<h4>${line.replace(/=/g, '').trim()}</h4>`;
+                    }
+
+                    // Handle bullet points and regular text
+                    if (line.startsWith('-')) {
+                        return `<li>${line.substring(1).trim()}</li>`;
+                    }
+
+                    // Handle key-value pairs
+                    if (line.includes(':')) {
+                        const [key, value] = line.split(':');
+                        return `<p><strong>${key.trim()}:</strong> ${value.trim()}</p>`;
+                    }
+
+                    return `<p>${line}</p>`;
+                }).join('')}
+            </div>
+        </div>
         <div class="confirmation-buttons">
-            <button onclick="confirmSimulation(true)" class="btn">Confirm</button>
-            <button onclick="confirmSimulation(false)" class="btn">Cancel</button>
+            <button onclick="confirmSimulation(true)" class="btn">✓ Confirm Scenario</button>
+            <button onclick="confirmSimulation(false)" class="btn">✗ Cancel</button>
         </div>
     `;
     messageElement.appendChild(content);

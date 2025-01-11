@@ -296,3 +296,56 @@ pre {
     word-wrap: break-word;
     margin: 10px 0;
 }
+
+/* Scenario Display Styles */
+.scenario-details {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 15px;
+    margin: 10px 0;
+}
+
+.scenario-content {
+    margin: 10px 0;
+}
+
+.scenario-content h4 {
+    color: var(--holo-orange);
+    margin: 15px 0 10px 0;
+    font-size: 1.1em;
+}
+
+.scenario-content li {
+    list-style-type: none;
+    margin: 5px 0 5px 15px;
+    position: relative;
+}
+
+.scenario-content li:before {
+    content: "•";
+    color: var(--holo-orange);
+    position: absolute;
+    left: -15px;
+}
+
+.scenario-content p {
+    margin: 8px 0;
+    line-height: 1.4;
+}
+
+.confirmation-buttons {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-start;
+}
+
+.confirmation-buttons .btn {
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.9em;
+    min-width: 120px;
+    justify-content: center;
+}
