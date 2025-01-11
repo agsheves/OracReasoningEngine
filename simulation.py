@@ -4,6 +4,7 @@ import json
 import logging
 from datetime import datetime
 
+
 class WorldSimulator:
 
     def __init__(self):
@@ -59,54 +60,58 @@ class WorldSimulator:
         </sys>
         """
 
-    def process_input(self, user_input, is_followup=False, scenario_context=None):
+    def process_input(self, user_input):
         try:
-            logging.debug(f"Processing input: {user_input}, is_followup: {is_followup}")
+            # Log the input for debugging
+            logging.debug(f"Processing user input: {user_input}")
 
-            if is_followup and scenario_context:
-                # For follow-up questions, include the original scenario context
-                prompt = f"""Based on the following scenario context:
-                {json.dumps(scenario_context, indent=2)}
-
-                Please address this follow-up question while maintaining consistency with the scenario above:
-                {user_input}
-
-                Important:
-                1. Use the scenario parameters and constraints from above
-                2. Consider all previously established facts and conditions
-                3. Provide a focused response to the specific follow-up question
-                4. Maintain consistency with the world-state and previous responses"""
-            else:
-                # For initial scenarios, use the input directly
-                prompt = user_input
-
+            # Create a structured request with system as top-level parameter
             response = self.client.messages.create(
                 model="claude-3-opus-20240229",
                 max_tokens=2000,
                 messages=[{
                     "role": "user",
-                    "content": prompt
+                    "content": user_input
                 }],
                 system=self.system_prompt)
 
+            # Log the raw response for debugging
+            logging.debug(f"Raw API response: {response.content[0].text}")
+
             try:
+                # Try to format the response content nicely
                 content = response.content[0].text
+
+                # Add separators between sections if they're not present
                 content = content.replace("\n\n", "\n---\n")
 
-                return json.dumps({
-                    'response': content,
-                    'state_update': response.content[0].text.split(
-                        'State Update:')[-1].split('\n')[0].strip() if
-                    'State Update:' in response.content[0].text else None,
-                    'available_actions': [
-                        action.strip()
-                        for action in response.content[0].text.split(
-                            'Available actions:')[-1].split('\n')[0].split(',')
-                    ] if 'Available actions:' in response.content[0].text else []
-                })
+                # Parse as JSON if possible for structured output
+                try:
+                    parsed_response = {
+                        'response':
+                        content,
+                        'state_update':
+                        response.content[0].text.split(
+                            'State Update:')[-1].split('\n')[0].strip() if
+                        'State Update:' in response.content[0].text else None,
+                        'available_actions': [
+                            action.strip()
+                            for action in response.content[0].text.split(
+                                'Available actions:')[-1].split('\n')[0].split(
+                                    ',')
+                        ] if 'Available actions:' in response.content[0].text
+                        else []
+                    }
+                    return json.dumps(parsed_response)
+                except:
+                    # If not JSON, return formatted text
+                    return json.dumps({
+                        'response': content,
+                    })
 
             except json.JSONDecodeError as je:
                 logging.error(f"JSON parsing error: {je}")
+                # Return a formatted error response
                 return json.dumps({
                     "response": response.content[0].text,
                 })
