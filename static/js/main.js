@@ -40,7 +40,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const message = messageInput.value.trim();
         if (message) {
             addMessage(message, true);
-            socket.emit('simulate', { input: message });
+            socket.emit('simulate', { 
+                input: message,
+                is_first_message: isFirstMessage 
+            });
             messageInput.value = '';
             setLoading(true);
         }

@@ -1,80 +1,69 @@
 let socket = io();
 let currentScenario = null; // Store the current scenario for editing
+let isFirstMessage = true; // Track if this is the first message in a conversation
+const chatWindow = document.getElementById('chat-window'); //Added for easier access
+
+function addMessage(message, isUser = false) {
+    if (isFirstMessage && !isUser) {
+        // Clear default welcome message when first user message is sent
+        chatWindow.innerHTML = '';
+        isFirstMessage = false;
+    }
+
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('message');
+    messageElement.classList.add(isUser ? 'user-message' : 'system-message');
+
+    const content = document.createElement('p');
+    content.textContent = message;
+    messageElement.appendChild(content);
+
+    chatWindow.appendChild(messageElement);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+}
 
 socket.on('connect', () => {
     console.log('Connected to server');
 });
 
 socket.on('simulation_response', (data) => {
-    const messageElement = document.createElement('div');
-    messageElement.classList.add('message', 'system-message');
-
     try {
         const response = JSON.parse(data.response);
-        const content = document.createElement('p');
-        content.textContent = response.response;
-        messageElement.appendChild(content);
+        addMessage(response.response);
 
         if (response.state_update) {
-            const stateUpdate = document.createElement('div');
-            stateUpdate.classList.add('state-update');
-            stateUpdate.textContent = `State Update: ${response.state_update}`;
-            messageElement.appendChild(stateUpdate);
+            addMessage(`State Update: ${response.state_update}`);
         }
 
         if (response.available_actions && response.available_actions.length > 0) {
-            const actions = document.createElement('div');
-            actions.classList.add('available-actions');
-            actions.textContent = 'Available actions: ' + response.available_actions.join(', ');
-            messageElement.appendChild(actions);
+            addMessage('Available actions: ' + response.available_actions.join(', '));
         }
     } catch (error) {
         console.error('Error parsing response:', error);
-        const content = document.createElement('p');
-        content.textContent = data.response;
-        messageElement.appendChild(content);
+        addMessage(data.response);
     }
-
-    document.getElementById('chat-window').appendChild(messageElement);
-    document.getElementById('chat-window').scrollTop = document.getElementById('chat-window').scrollHeight;
-
-    // Hide loading indicator when response is received
     window.setLoading(false);
 });
 
 socket.on('simulation_confirmation', (data) => {
-    const messageElement = document.createElement('div');
-    messageElement.classList.add('message', 'system-message');
-
-    // Store the current scenario data for editing
     currentScenario = data;
-
-    const content = document.createElement('div');
-    content.innerHTML = `
+    const content = `
         <h3>📋 Scenario Analysis</h3>
         <div class="scenario-details">
             <p><strong>Type:</strong> ${data.heuristic}</p>
             <div class="scenario-content">
                 ${data.scenario.split('\n').map(line => {
-                    // Skip empty lines
                     if (!line.trim()) return '';
-
-                    // Format section headers
                     if (line.includes('===')) {
                         return `<h4>${line.replace(/=/g, '').trim()}</h4>`;
                     }
-
-                    // Handle bullet points and regular text
                     if (line.startsWith('-')) {
                         return `<li>${line.substring(1).trim()}</li>`;
                     }
-
-                    // Handle key-value pairs
                     if (line.includes(':')) {
                         const [key, value] = line.split(':');
                         return `<p><strong>${key.trim()}:</strong> ${value.trim()}</p>`;
                     }
-
                     return `<p>${line}</p>`;
                 }).join('')}
             </div>
@@ -85,47 +74,37 @@ socket.on('simulation_confirmation', (data) => {
             <button onclick="confirmSimulation(false)" class="btn">✗ Cancel</button>
         </div>
     `;
-    messageElement.appendChild(content);
-
-    document.getElementById('chat-window').appendChild(messageElement);
-    document.getElementById('chat-window').scrollTop = document.getElementById('chat-window').scrollHeight;
-
-    // Hide loading indicator when confirmation is requested
+    addMessage(content);
     window.setLoading(false);
 });
 
 socket.on('simulation_error', (data) => {
-    const messageElement = document.createElement('div');
-    messageElement.classList.add('message', 'error-message');
-    messageElement.textContent = 'Error: ' + data.error;
-    document.getElementById('chat-window').appendChild(messageElement);
-
-    // Hide loading indicator on error
+    addMessage('Error: ' + data.error, false);
     window.setLoading(false);
 });
 
 socket.on('disconnect', () => {
     console.log('Disconnected from server');
-    // Hide loading indicator on disconnect
     window.setLoading(false);
 });
 
-// Add to global scope for button onclick handlers
 window.confirmSimulation = function(confirmed) {
+    if (confirmed) {
+        isFirstMessage = false; // Set to false after confirming first scenario
+    }
     socket.emit('confirm_simulation', confirmed);
     if (confirmed) {
         window.setLoading(true);
     }
 }
 
-// Add edit functionality
 window.editScenario = function() {
     const messageInput = document.getElementById('message-input');
     if (currentScenario) {
-        // Copy original prompt back to input field
         messageInput.value = currentScenario.original_prompt || '';
         messageInput.focus();
-        // Scroll input into view
         messageInput.scrollIntoView({ behavior: 'smooth' });
     }
 }
+
+window.isFirstMessage = isFirstMessage;
