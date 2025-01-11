@@ -133,8 +133,8 @@ def update_session():
 
 @socketio.on('send_message')
 def route_message(message):
-    user_settings = session.get('user_settings', None)
-    if session[user_settings]['first_message'] == False:
+    user_settings = session.get('user_settings', {})
+    if user_settings.get('first_message') == 'False':
         setup_simulation(message)
     else:
         manage_subsequent_messages(message)
