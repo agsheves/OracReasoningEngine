@@ -4,7 +4,6 @@ import json
 import logging
 from datetime import datetime
 
-
 class WorldSimulator:
 
     def __init__(self):
@@ -14,7 +13,6 @@ class WorldSimulator:
                 "ANTHROPIC_API_KEY environment variable is not set")
 
         self.client = anthropic.Client(api_key=api_key)
-        self.current_context = None
         self.system_prompt = """
         <sys>
         Assistant is operating in WorldSIM CLI mode. Format all responses with:
@@ -68,11 +66,16 @@ class WorldSimulator:
             if is_followup and scenario_context:
                 # For follow-up questions, include the original scenario context
                 prompt = f"""Based on the following scenario context:
-                {scenario_context}
+                {json.dumps(scenario_context, indent=2)}
 
-                Please answer the follow-up question: {user_input}
+                Please address this follow-up question while maintaining consistency with the scenario above:
+                {user_input}
 
-                Maintain consistency with the original scenario while addressing this specific query."""
+                Important:
+                1. Use the scenario parameters and constraints from above
+                2. Consider all previously established facts and conditions
+                3. Provide a focused response to the specific follow-up question
+                4. Maintain consistency with the world-state and previous responses"""
             else:
                 # For initial scenarios, use the input directly
                 prompt = user_input
