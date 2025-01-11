@@ -136,6 +136,7 @@ def handle_simulation(message):
         )
         db.session.add(session)
         db.session.commit()
+        session.initialize_session_settings(current_user)
 
     except Exception as e:
         logging.error(f'Scenario processing error: {str(e)}')

@@ -11,6 +11,14 @@ class User(UserMixin, db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_admin = db.Column(db.Boolean, default=False)
     is_validated = db.Column(db.Boolean, default=False)
+    user_settings = db.Column(db.JSON, default=lambda: {
+        'theme': 'dark',
+        'language': 'en',
+        'notifications_enabled': True,
+        'auto_save': True,
+        'display_format': 'detailed',
+        'simulation_mode': 'standard'
+    })
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -24,3 +32,8 @@ class SimulationSession(db.Model):
     started_at = db.Column(db.DateTime, default=datetime.utcnow)
     last_interaction = db.Column(db.DateTime, default=datetime.utcnow)
     world_state = db.Column(db.Text)
+    session_settings = db.Column(db.JSON, default=lambda: {})
+
+    def initialize_session_settings(self, user):
+        self.session_settings = user.user_settings.copy()
+        db.session.commit()
