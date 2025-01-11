@@ -13,7 +13,14 @@ world_simulator = WorldSimulator()
 @main.route('/')
 @login_required
 def index():
-    return render_template('simulator.html')
+    # Initialize session variables if they don't exist
+    if 'user_settings' not in session:
+        session['user_settings'] = {
+            'theme': 'light',
+            'last_simulation': None,
+            'preferences': {}
+        }
+    return render_template('simulator.html', settings=session['user_settings'])
 
 @main.route('/register', methods=['GET', 'POST'])
 def register():
@@ -113,6 +120,15 @@ def delete_user(user_id):
 @login_required
 def handle_connect():
     logging.debug(f'Client connected: {current_user.username}')
+
+@main.route('/update_session', methods=['POST'])
+@login_required
+def update_session():
+    if request.is_json:
+        updates = request.get_json()
+        session['user_settings'].update(updates)
+        return jsonify({'status': 'success'})
+    return jsonify({'status': 'error', 'message': 'Invalid request'}), 400
 
 @socketio.on('simulate')
 def handle_simulation(message):
