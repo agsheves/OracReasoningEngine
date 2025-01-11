@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from flask_login import login_user, logout_user, login_required, current_user
 from models import User, SimulationSession
 from app import db, socketio
@@ -6,7 +6,6 @@ import routing_and_logic
 from simulation import WorldSimulator
 import logging
 import json
-from flask import session
 
 main = Blueprint('main', __name__)
 world_simulator = WorldSimulator()
@@ -133,12 +132,21 @@ def update_session():
 
 @socketio.on('send_message')
 def route_message(message):
-    user_settings = session.get('user_settings', {})
-    if user_settings.get('first_message') == 'False':
-        setup_simulation(message)
-    else:
-        manage_subsequent_messages(message)
+    logging.debug(f"Routing message: {message}")
+    try:
+        # Check if this is the user's first message in the session
+        first_message = session.get('user_settings', {}).get('first_message', 'True')
+        logging.debug(f"First message status: {first_message}")
 
+        if first_message == 'True':
+            logging.debug("Processing as first message")
+            setup_simulation(message)
+        else:
+            logging.debug("Processing as subsequent message")
+            manage_subsequent_messages(message)
+    except Exception as e:
+        logging.error(f"Error in route_message: {str(e)}")
+        socketio.emit('simulation_error', {'error': str(e)})
 
 def setup_simulation(message):
     try:
@@ -167,29 +175,56 @@ def setup_simulation(message):
         socketio.emit('simulation_error', {'error': str(e)})
 
 def manage_subsequent_messages(message):
-    response = "Subsequent messsages will bypass simulation set up"
-    pass
+    try:
+        logging.debug(f"Processing subsequent message: {message['input']}")
+        # Get the latest session for the user
+        latest_session = SimulationSession.query.filter_by(
+            user_id=current_user.id
+        ).order_by(SimulationSession.started_at.desc()).first()
+
+        if not latest_session:
+            raise ValueError("No active simulation session found")
+
+        # Process with the world simulator
+        response = world_simulator.process_input(message['input'])
+        socketio.emit('simulation_response', {'response': response})
+
+    except Exception as e:
+        logging.error(f"Error processing subsequent message: {str(e)}")
+        socketio.emit('simulation_error', {'error': str(e)})
 
 @socketio.on('confirm_simulation')
 def handle_simulation_confirmation(confirmed):
     try:
         if confirmed:
             # Get the latest session for the user
-            session = SimulationSession.query.filter_by(
+            simulation_session = SimulationSession.query.filter_by(
                 user_id=current_user.id
             ).order_by(SimulationSession.started_at.desc()).first()
 
-            if not session:
+            if not simulation_session:
                 raise ValueError("No active simulation session found")
 
             # Process with the world simulator
-            scenario = json.loads(session.world_state)
+            scenario = json.loads(simulation_session.world_state)
             response = world_simulator.process_input(json.dumps(scenario))
             socketio.emit('simulation_response', {'response': response})
-            session['user_settings']['first_message'] = False
+
+            # Update session state
+            if 'user_settings' not in session:
+                session['user_settings'] = {}
+            session['user_settings']['first_message'] = 'False'
+            session.modified = True  # Mark session as modified to ensure it's saved
         else:
+            # If cancelled, reset to first message state
+            if 'user_settings' not in session:
+                session['user_settings'] = {}
+            session['user_settings']['first_message'] = 'True'
+            session.modified = True
             socketio.emit('simulation_cancelled', {'message': 'Simulation cancelled by user'})
 
     except Exception as e:
         logging.error(f'Simulation error: {str(e)}')
         socketio.emit('simulation_error', {'error': str(e)})
+
+from flask import jsonify
