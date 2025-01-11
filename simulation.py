@@ -14,6 +14,7 @@ class WorldSimulator:
                 "ANTHROPIC_API_KEY environment variable is not set")
 
         self.client = anthropic.Client(api_key=api_key)
+        self.current_context = None
         self.system_prompt = """
         <sys>
         Assistant is operating in WorldSIM CLI mode. Format all responses with:
@@ -60,58 +61,49 @@ class WorldSimulator:
         </sys>
         """
 
-    def process_input(self, user_input):
+    def process_input(self, user_input, is_followup=False, scenario_context=None):
         try:
-            # Log the input for debugging
-            logging.debug(f"Processing user input: {user_input}")
+            logging.debug(f"Processing input: {user_input}, is_followup: {is_followup}")
 
-            # Create a structured request with system as top-level parameter
+            if is_followup and scenario_context:
+                # For follow-up questions, include the original scenario context
+                prompt = f"""Based on the following scenario context:
+                {scenario_context}
+
+                Please answer the follow-up question: {user_input}
+
+                Maintain consistency with the original scenario while addressing this specific query."""
+            else:
+                # For initial scenarios, use the input directly
+                prompt = user_input
+
             response = self.client.messages.create(
                 model="claude-3-opus-20240229",
                 max_tokens=2000,
                 messages=[{
                     "role": "user",
-                    "content": user_input
+                    "content": prompt
                 }],
                 system=self.system_prompt)
 
-            # Log the raw response for debugging
-            logging.debug(f"Raw API response: {response.content[0].text}")
-
             try:
-                # Try to format the response content nicely
                 content = response.content[0].text
-
-                # Add separators between sections if they're not present
                 content = content.replace("\n\n", "\n---\n")
 
-                # Parse as JSON if possible for structured output
-                try:
-                    parsed_response = {
-                        'response':
-                        content,
-                        'state_update':
-                        response.content[0].text.split(
-                            'State Update:')[-1].split('\n')[0].strip() if
-                        'State Update:' in response.content[0].text else None,
-                        'available_actions': [
-                            action.strip()
-                            for action in response.content[0].text.split(
-                                'Available actions:')[-1].split('\n')[0].split(
-                                    ',')
-                        ] if 'Available actions:' in response.content[0].text
-                        else []
-                    }
-                    return json.dumps(parsed_response)
-                except:
-                    # If not JSON, return formatted text
-                    return json.dumps({
-                        'response': content,
-                    })
+                return json.dumps({
+                    'response': content,
+                    'state_update': response.content[0].text.split(
+                        'State Update:')[-1].split('\n')[0].strip() if
+                    'State Update:' in response.content[0].text else None,
+                    'available_actions': [
+                        action.strip()
+                        for action in response.content[0].text.split(
+                            'Available actions:')[-1].split('\n')[0].split(',')
+                    ] if 'Available actions:' in response.content[0].text else []
+                })
 
             except json.JSONDecodeError as je:
                 logging.error(f"JSON parsing error: {je}")
-                # Return a formatted error response
                 return json.dumps({
                     "response": response.content[0].text,
                 })

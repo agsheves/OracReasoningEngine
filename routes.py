@@ -118,27 +118,50 @@ def handle_connect():
 def handle_simulation(message):
     try:
         logging.debug(f'Processing simulation request: {message["input"]}')
-        # First, process the scenario
-        scenario_data = routing_and_logic.process_scenario(message['input'])
 
-        # Emit the formatted scenario for confirmation
-        socketio.emit('simulation_confirmation', {
-            'scenario': scenario_data['display_format'],
-            'heuristic': scenario_data['heuristic'],
-            'heuristic_description': scenario_data['heuristic_description'],
-            'original_prompt': message['input']  # Include original prompt for editing
-        })
+        # Check if this is a follow-up question
+        latest_session = SimulationSession.query.filter_by(
+            user_id=current_user.id
+        ).order_by(SimulationSession.started_at.desc()).first()
 
-        # Store the parsed scenario in the session
-        session = SimulationSession(
-            user_id=current_user.id,
-            world_state=json.dumps(scenario_data['parsed_scenario'])
-        )
-        db.session.add(session)
-        db.session.commit()
+        is_followup = False
+        scenario_context = None
+
+        if latest_session and latest_session.world_state:
+            # If there's a recent session, treat this as a potential follow-up
+            is_followup = True
+            scenario_context = latest_session.world_state
+
+        if not is_followup:
+            # For new scenarios, process through routing logic
+            scenario_data = routing_and_logic.process_scenario(message['input'])
+
+            # Emit the formatted scenario for confirmation
+            socketio.emit('simulation_confirmation', {
+                'scenario': scenario_data['display_format'],
+                'heuristic': scenario_data['heuristic'],
+                'heuristic_description': scenario_data['heuristic_description'],
+                'original_prompt': message['input']
+            })
+
+            # Store the parsed scenario in the session
+            session = SimulationSession(
+                user_id=current_user.id,
+                world_state=json.dumps(scenario_data['parsed_scenario'])
+            )
+            db.session.add(session)
+            db.session.commit()
+        else:
+            # For follow-up questions, process directly with the simulator
+            response = world_simulator.process_input(
+                message['input'],
+                is_followup=True,
+                scenario_context=scenario_context
+            )
+            socketio.emit('simulation_response', {'response': response})
 
     except Exception as e:
-        logging.error(f'Scenario processing error: {str(e)}')
+        logging.error(f'Simulation error: {str(e)}')
         socketio.emit('simulation_error', {'error': str(e)})
 
 @socketio.on('confirm_simulation')
