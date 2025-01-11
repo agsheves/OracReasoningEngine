@@ -60,19 +60,23 @@ class WorldSimulator:
         </sys>
         """
 
-    def process_input(self, user_input):
+    def process_input(self, user_input, conversation_history=None):
         try:
             # Log the input for debugging
             logging.debug(f"Processing user input: {user_input}")
+            if conversation_history is None:
+                conversation_history = []
 
             # Create a structured request with system as top-level parameter
+            # Prepare messages including history
+            messages = conversation_history.copy()
+            if not any(msg.get('role') == 'system' for msg in messages):
+                messages.insert(0, {"role": "system", "content": self.system_prompt})
+            
             response = self.client.messages.create(
                 model="claude-3-opus-20240229",
                 max_tokens=2000,
-                messages=[{
-                    "role": "user",
-                    "content": user_input
-                }],
+                messages=messages,
                 system=self.system_prompt)
 
             # Log the raw response for debugging

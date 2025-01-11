@@ -185,8 +185,22 @@ def manage_subsequent_messages(message):
         if not latest_session:
             raise ValueError("No active simulation session found")
 
-        # Process with the world simulator
-        response = world_simulator.process_input(message['input'])
+        # Load existing conversation history
+        history = json.loads(latest_session.conversation_history)
+        # Add user message to history
+        history.append({"role": "user", "content": message['input']})
+        
+        # Process with the world simulator, including conversation history
+        response = world_simulator.process_input(message['input'], conversation_history=history)
+        
+        # Add system response to history
+        history.append({"role": "assistant", "content": response})
+        
+        # Update session with new history
+        latest_session.conversation_history = json.dumps(history)
+        latest_session.last_interaction = datetime.utcnow()
+        db.session.commit()
+
         socketio.emit('simulation_response', {'response': response})
 
     except Exception as e:
