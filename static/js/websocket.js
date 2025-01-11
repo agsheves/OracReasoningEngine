@@ -1,4 +1,5 @@
 let socket = io();
+let currentScenario = null; // Store the current scenario for editing
 
 socket.on('connect', () => {
     console.log('Connected to server');
@@ -45,6 +46,9 @@ socket.on('simulation_confirmation', (data) => {
     const messageElement = document.createElement('div');
     messageElement.classList.add('message', 'system-message');
 
+    // Store the current scenario data for editing
+    currentScenario = data;
+
     const content = document.createElement('div');
     content.innerHTML = `
         <h3>📋 Scenario Analysis</h3>
@@ -77,6 +81,7 @@ socket.on('simulation_confirmation', (data) => {
         </div>
         <div class="confirmation-buttons">
             <button onclick="confirmSimulation(true)" class="btn">✓ Confirm Scenario</button>
+            <button onclick="editScenario()" class="btn edit">✎ Edit</button>
             <button onclick="confirmSimulation(false)" class="btn">✗ Cancel</button>
         </div>
     `;
@@ -110,5 +115,17 @@ window.confirmSimulation = function(confirmed) {
     socket.emit('confirm_simulation', confirmed);
     if (confirmed) {
         window.setLoading(true);
+    }
+}
+
+// Add edit functionality
+window.editScenario = function() {
+    const messageInput = document.getElementById('message-input');
+    if (currentScenario) {
+        // Copy original prompt back to input field
+        messageInput.value = currentScenario.original_prompt || '';
+        messageInput.focus();
+        // Scroll input into view
+        messageInput.scrollIntoView({ behavior: 'smooth' });
     }
 }

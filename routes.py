@@ -125,7 +125,8 @@ def handle_simulation(message):
         socketio.emit('simulation_confirmation', {
             'scenario': scenario_data['display_format'],
             'heuristic': scenario_data['heuristic'],
-            'heuristic_description': scenario_data['heuristic_description']
+            'heuristic_description': scenario_data['heuristic_description'],
+            'original_prompt': message['input']  # Include original prompt for editing
         })
 
         # Store the parsed scenario in the session

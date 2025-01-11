@@ -130,6 +130,7 @@ def process_scenario(message: str) -> Dict:
     - heuristic: the matched heuristic
     - parsed_scenario: structured scenario details
     - display_format: human-readable format for confirmation
+    - original_prompt: the original user input for editing
     """
     logger.info("Processing new scenario request")
 
@@ -157,7 +158,8 @@ def process_scenario(message: str) -> Dict:
             'heuristic': heuristic,
             'heuristic_description': heuristic_desc,
             'parsed_scenario': parsed_scenario,
-            'display_format': display_format
+            'display_format': display_format,
+            'original_prompt': message  # Include original prompt for editing
         }
     except Exception as e:
         logger.error(f"Error processing scenario: {e}")

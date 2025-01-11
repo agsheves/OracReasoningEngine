@@ -121,6 +121,12 @@ header {
     gap: 10px;
     padding: 0 20px;
     margin-bottom: 20px;
+    position: sticky;
+    bottom: 0;
+    background: var(--space-blue);
+    padding: 20px;
+    margin: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .input-area input {
@@ -274,11 +280,17 @@ th {
     margin-top: 15px;
     display: flex;
     gap: 10px;
+    justify-content: flex-start;
 }
 
 .confirmation-buttons .btn {
-    flex: 1;
-    max-width: 150px;
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.9em;
+    min-width: 120px;
+    justify-content: center;
 }
 
 .error-message {
@@ -333,6 +345,18 @@ pre {
     line-height: 1.4;
 }
 
+/* Edit Button Styles */
+.btn.edit {
+    background: var(--space-blue);
+    border: 1px solid var(--holo-orange);
+    color: var(--holo-orange);
+}
+
+.btn.edit:hover {
+    background: rgba(255, 123, 0, 0.2);
+}
+
+/* Updated Confirmation Buttons */
 .confirmation-buttons {
     margin-top: 15px;
     display: flex;
@@ -348,4 +372,14 @@ pre {
     font-size: 0.9em;
     min-width: 120px;
     justify-content: center;
+}
+
+/* Ensure input is visible when scrolling */
+.input-area {
+    position: sticky;
+    bottom: 0;
+    background: var(--space-blue);
+    padding: 20px;
+    margin: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }

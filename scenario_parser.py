@@ -46,6 +46,7 @@ class ScenarioParser:
                     "timeline": "relevant timeframe"
                 }
             }
+            If you cannot identify any of these elements, respond with "none specified" for that field to ensure there is a coplete JSON payload returned.
             """
 
             response = client.messages.create(
