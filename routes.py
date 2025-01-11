@@ -153,9 +153,9 @@ def handle_simulation_confirmation(confirmed):
             if not session:
                 raise ValueError("No active simulation session found")
 
-            # Process with the world simulator
+            # Initaize the world simulator with the base scenario
             scenario = json.loads(session.world_state)
-            response = world_simulator.process_input(json.dumps(scenario))
+            response = world_simulator.initialize_simulation(json.dumps(scenario))
             socketio.emit('simulation_response', {'response': response})
         else:
             socketio.emit('simulation_cancelled', {'message': 'Simulation cancelled by user'})

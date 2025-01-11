@@ -60,7 +60,7 @@ class WorldSimulator:
         </sys>
         """
 
-    def process_input(self, user_input):
+    def initialize_simulation(self, user_input):
         try:
             # Log the input for debugging
             logging.debug(f"Processing user input: {user_input}")
@@ -119,3 +119,6 @@ class WorldSimulator:
         except Exception as e:
             logging.error(f"Error in simulation processing: {str(e)}")
             raise
+
+    def handle_subsequent_messages(self, user_message):
+        pass
