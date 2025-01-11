@@ -19,5 +19,4 @@ dependencies = [
     "python-dotenv>=1.0.1",
     "eventlet>=0.38.2",
     "oauthlib>=3.2.2",
-    "alembic>=1.14.0",
 ]

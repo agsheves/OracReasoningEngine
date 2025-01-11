@@ -24,4 +24,3 @@ class SimulationSession(db.Model):
     started_at = db.Column(db.DateTime, default=datetime.utcnow)
     last_interaction = db.Column(db.DateTime, default=datetime.utcnow)
     world_state = db.Column(db.Text)
-    conversation_history = db.Column(db.Text, default='[]')  # Store as JSON array
