@@ -1,0 +1,12 @@
+Next steps:
+Saturday, January 11 2025 @ 16:43
+
+Add conversation history to session_settings
+Add first_message to session_settings
+Append messages to conversation_histoy before resending to model
+Work out how to manage rate limits - queuing system?
+
+## Big tasks
+Build consistency with the model logic and outputs
+Add heuristics for geopolitics and crisis management
+

@@ -102,6 +102,17 @@ class WorldSimulator:
                         ] if 'Available actions:' in response.content[0].text
                         else []
                     }
+                    
+                    # Add user message and assistant response to conversation history
+                    self.conversation_history.append({
+                        "role": "user",
+                        "content": user_input
+                    })
+
+                    self.conversation_history.append({
+                        "role": "assistant",
+                        "content": content
+                    })
                     return json.dumps(parsed_response)
                 except:
                     # If not JSON, return formatted text
@@ -121,4 +132,39 @@ class WorldSimulator:
             raise
 
     def handle_subsequent_messages(self, user_message):
-        pass
+        try:
+            # Log the incoming message and conversation history
+            logging.debug(f"Received user message: {user_message}")
+            logging.debug(f"Current conversation history: {self.conversation_history}")
+
+            # Construct the conversation history for the LLM
+            messages = self.conversation_history + [{"role": "user", "content": user_message}]
+
+            # Send to the LLM
+            response = self.client.messages.create(
+                model="claude-3-opus-20240229",
+                max_tokens=2000,
+                messages=messages,
+                system=self.system_prompt
+            )
+
+            # Log the response
+            logging.debug(f"Response from LLM: {response.content[0].text}")
+
+            # Append the new user message and response to the conversation history
+            self.conversation_history.extend([
+                {
+                    "role": "user",
+                    "content": user_message
+                },
+                {
+                    "role": "assistant",
+                    "content": response.content[0].text
+                }
+            ])
+
+            return response.content[0].text
+
+        except Exception as e:
+            logging.error(f"Error in handling subsequent messages: {str(e)}")
+            raise
