@@ -118,14 +118,17 @@ window.confirmSimulation = function(confirmed) {
     }
 }
 
-// Add edit functionality
+// Add edit functionality with null check
 window.editScenario = function() {
     const messageInput = document.getElementById('message-input');
-    if (currentScenario) {
+    if (currentScenario && currentScenario.original_prompt !== null && currentScenario.original_prompt !== undefined) {
         // Copy original prompt back to input field
-        messageInput.value = currentScenario.original_prompt || '';
+        messageInput.value = currentScenario.original_prompt;
         messageInput.focus();
         // Scroll input into view
         messageInput.scrollIntoView({ behavior: 'smooth' });
+    } else {
+        // Clear the input field if the original_prompt is not available
+        messageInput.value = '';
     }
 }

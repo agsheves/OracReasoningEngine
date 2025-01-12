@@ -123,7 +123,7 @@ def routed_message(message):
     else:
         handle_subsqeuent_message(message)
 
-@socketio.on('simulate')
+#@socketio.on('simulate')
 def handle_simulation(message):
     try:
         logging.debug(f'Processing simulation request: {message["input"]}')
@@ -140,10 +140,9 @@ def handle_simulation(message):
 
         # Only create session if user is authenticated
         if hasattr(current_user, 'id'):
-            session = SimulationSession(
-                user_id=current_user.id,
-                world_state=json.dumps(scenario_data['parsed_scenario'])
-            )
+            session = SimulationSession()
+            session.user_id = current_user.id
+            session.world_state = json.dumps(scenario_data['parsed_scenario'])
             db.session.add(session)
             db.session.commit()
             if hasattr(session, 'initialize_session_settings'):
