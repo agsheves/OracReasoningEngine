@@ -142,8 +142,11 @@ class WorldSimulator:
             logging.debug(f"Received user message: {user_message}")
             logging.debug(f"Current conversation history: {self.conversation_history}")
 
+            # If user_message is a dict with 'input' key, extract the actual message
+            message_content = user_message['input'] if isinstance(user_message, dict) else user_message
+
             # Construct the conversation history for the LLM
-            messages = self.conversation_history + [{"role": "user", "content": user_message}]
+            messages = self.conversation_history + [{"role": "user", "content": message_content}]
 
             # Send to the LLM
             response = self.client.messages.create(
@@ -160,7 +163,7 @@ class WorldSimulator:
             self.conversation_history.extend([
                 {
                     "role": "user",
-                    "content": user_message
+                    "content": message_content
                 },
                 {
                     "role": "assistant",
