@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user, login_required, current_user
 from models import User, SimulationSession
+from flask import session as session_settings
 from app import db, socketio
 import routing_and_logic
 from simulation import WorldSimulator
@@ -117,7 +118,7 @@ def handle_connect():
 
 @socketio.on('route_message')
 def routed_message(message):
-    if session_settings['first_message'] == False:
+    if not session_settings.get('first_message'):
         handle_simulation(message)
     else:
         handle_subsqeuent_message(message)
@@ -137,15 +138,16 @@ def handle_simulation(message):
             'original_prompt': message['input']  # Include original prompt for editing
         })
 
-        # Store the parsed scenario in the session
-        # Creating new simulation session with user-specific details
-        session = SimulationSession(
-            user_id=current_user.id,  # Associate session with the current user
-            world_state=json.dumps(scenario_data['parsed_scenario'])  # Serialize parsed scenario
-        )
-        db.session.add(session)
-        db.session.commit()
-        session.initialize_session_settings(current_user)
+        # Only create session if user is authenticated
+        if hasattr(current_user, 'id'):
+            session = SimulationSession(
+                user_id=current_user.id,
+                world_state=json.dumps(scenario_data['parsed_scenario'])
+            )
+            db.session.add(session)
+            db.session.commit()
+            if hasattr(session, 'initialize_session_settings'):
+                session.initialize_session_settings(current_user)
 
     except Exception as e:
         logging.error(f'Scenario processing error: {str(e)}')
