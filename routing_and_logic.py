@@ -4,9 +4,8 @@ import json
 import logging
 from typing import Tuple, Optional, Dict
 from scenario_parser import ScenarioParser
-from dotenv import load_dotenv 
+from heuristics_config import heuristic_list
 
-load_dotenv()
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -20,7 +19,7 @@ if not api_key:
 client = anthropic.Client(api_key=api_key)
 scenario_parser = ScenarioParser
 
-heuristic_list = os.getenv("heuristic_list")
+
 
 def check_shortcode(message: str) -> Optional[str]:
     """
