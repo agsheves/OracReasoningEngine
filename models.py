@@ -34,4 +34,5 @@ class SimulationSession(db.Model):
 
     def initialize_session_settings(self, user):
         self.session_settings = user.user_settings.copy()
+        self.session_settings['first_message'] = False
         db.session.commit()

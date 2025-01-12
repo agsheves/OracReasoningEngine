@@ -114,6 +114,14 @@ def delete_user(user_id):
 def handle_connect():
     logging.debug(f'Client connected: {current_user.username}')
 
+
+@socketio.on('route_message')
+def routed_message(message):
+    if session_settings['first_message'] == False:
+        handle_simulation(message)
+    else:
+        handle_subsqeuent_message(message)
+
 @socketio.on('simulate')
 def handle_simulation(message):
     try:
@@ -130,9 +138,10 @@ def handle_simulation(message):
         })
 
         # Store the parsed scenario in the session
+        # Creating new simulation session with user-specific details
         session = SimulationSession(
-            user_id=current_user.id,
-            world_state=json.dumps(scenario_data['parsed_scenario'])
+            user_id=current_user.id,  # Associate session with the current user
+            world_state=json.dumps(scenario_data['parsed_scenario'])  # Serialize parsed scenario
         )
         db.session.add(session)
         db.session.commit()
@@ -164,3 +173,12 @@ def handle_simulation_confirmation(confirmed):
     except Exception as e:
         logging.error(f'Simulation error: {str(e)}')
         socketio.emit('simulation_error', {'error': str(e)})
+
+def handle_subsqeuent_message(message):
+    try:
+        logging.debug(f'Handling subsequent message: {message}')
+        response = world_simulator.handle_subsequent_messages(message)
+        socketio.emit('subsequent_message_response', {'response': response})
+    except Exception as e:
+        logging.error(f'Subsequent message handling error: {str(e)}')
+        socketio.emit('subsequent_message_error', {'error': str(e)})

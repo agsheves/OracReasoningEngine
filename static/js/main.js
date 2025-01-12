@@ -40,7 +40,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const message = messageInput.value.trim();
         if (message) {
             addMessage(message, true);
-            socket.emit('simulate', { input: message });
+            if (typeof socket !== 'undefined' && socket.emit) {
+                socket.emit('route_message', { input: message });
+            } else {
+                console.error('Socket is not defined or does not support emit.');
+            }
             messageInput.value = '';
             setLoading(true);
         }

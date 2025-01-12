@@ -108,6 +108,10 @@ class WorldSimulator:
                         "role": "user",
                         "content": user_input
                     })
+                    # Update session_settings to mark that the first message has been processed.
+                    self.session_settings['first_message_processed'] = True
+                    
+        
 
                     self.conversation_history.append({
                         "role": "assistant",
