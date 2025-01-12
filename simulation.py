@@ -14,6 +14,8 @@ class WorldSimulator:
                 "ANTHROPIC_API_KEY environment variable is not set")
 
         self.client = anthropic.Client(api_key=api_key)
+        self.conversation_history = []  # Initialize empty conversation history
+        self.session_settings = {'first_message_processed': False}
         self.system_prompt = """
         <sys>
         Assistant is operating in WorldSIM CLI mode. Format all responses with:
@@ -65,71 +67,70 @@ class WorldSimulator:
             # Log the input for debugging
             logging.debug(f"Processing user input: {user_input}")
 
-            # Create a structured request with system as top-level parameter
-            response = self.client.messages.create(
-                model="claude-3-opus-20240229",
-                max_tokens=2000,
-                messages=[{
-                    "role": "user",
-                    "content": user_input
-                }],
-                system=self.system_prompt)
-
-            # Log the raw response for debugging
-            logging.debug(f"Raw API response: {response.content[0].text}")
-
-            try:
-                # Try to format the response content nicely
-                content = response.content[0].text
-
-                # Add separators between sections if they're not present
-                content = content.replace("\n\n", "\n---\n")
-
-                # Parse as JSON if possible for structured output
-                try:
-                    parsed_response = {
-                        'response':
-                        content,
-                        'state_update':
-                        response.content[0].text.split(
-                            'State Update:')[-1].split('\n')[0].strip() if
-                        'State Update:' in response.content[0].text else None,
-                        'available_actions': [
-                            action.strip()
-                            for action in response.content[0].text.split(
-                                'Available actions:')[-1].split('\n')[0].split(
-                                    ',')
-                        ] if 'Available actions:' in response.content[0].text
-                        else []
-                    }
-                    
-                    # Add user message and assistant response to conversation history
-                    self.conversation_history.append({
+            if not self.session_settings.get('first_message_processed'):
+                #Handle first message
+                response = self.client.messages.create(
+                    model="claude-3-opus-20240229",
+                    max_tokens=2000,
+                    messages=[{
                         "role": "user",
                         "content": user_input
-                    })
-                    # Update session_settings to mark that the first message has been processed.
-                    self.session_settings['first_message_processed'] = True
-                    
-        
+                    }],
+                    system=self.system_prompt)
+                
+                # Log the raw response for debugging
+                logging.debug(f"Raw API response: {response.content[0].text}")
 
-                    self.conversation_history.append({
-                        "role": "assistant",
-                        "content": content
-                    })
-                    return json.dumps(parsed_response)
-                except:
-                    # If not JSON, return formatted text
+                try:
+                    # Try to format the response content nicely
+                    content = response.content[0].text
+
+                    # Add separators between sections if they're not present
+                    content = content.replace("\n\n", "\n---\n")
+
+                    # Parse as JSON if possible for structured output
+                    try:
+                        parsed_response = {
+                            'response':
+                            content,
+                            'state_update':
+                            response.content[0].text.split(
+                                'State Update:')[-1].split('\n')[0].strip() if
+                            'State Update:' in response.content[0].text else None,
+                            'available_actions': [
+                                action.strip()
+                                for action in response.content[0].text.split(
+                                    'Available actions:')[-1].split('\n')[0].split(
+                                        ',')
+                            ] if 'Available actions:' in response.content[0].text
+                            else []
+                        }
+
+                        # Add user message and assistant response to conversation history
+                        self.conversation_history.append({
+                            "role": "user",
+                            "content": user_input
+                        })
+                        self.conversation_history.append({
+                            "role": "assistant",
+                            "content": content
+                        })
+                        self.session_settings['first_message_processed'] = True
+                        return json.dumps(parsed_response)
+                    except:
+                        # If not JSON, return formatted text
+                        return json.dumps({
+                            'response': content,
+                        })
+
+                except json.JSONDecodeError as je:
+                    logging.error(f"JSON parsing error: {je}")
+                    # Return a formatted error response
                     return json.dumps({
-                        'response': content,
+                        "response": response.content[0].text,
                     })
-
-            except json.JSONDecodeError as je:
-                logging.error(f"JSON parsing error: {je}")
-                # Return a formatted error response
-                return json.dumps({
-                    "response": response.content[0].text,
-                })
+            else:
+                return self.handle_subsequent_messages(user_input)
 
         except Exception as e:
             logging.error(f"Error in simulation processing: {str(e)}")

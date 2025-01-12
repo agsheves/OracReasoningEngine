@@ -118,10 +118,11 @@ def handle_connect():
 
 @socketio.on('route_message')
 def routed_message(message):
-    if not session_settings.get('first_message'):
+    if session_settings.get('first_message', True):  # True means it is the first message
         handle_simulation(message)
+        session_settings['first_message'] = False  # Mark that we've handled the first message
     else:
-        handle_subsqeuent_message(message)
+        handle_subsequent_message(message)  # Fixed typo in function name
 
 #@socketio.on('simulate')
 def handle_simulation(message):
@@ -175,11 +176,11 @@ def handle_simulation_confirmation(confirmed):
         logging.error(f'Simulation error: {str(e)}')
         socketio.emit('simulation_error', {'error': str(e)})
 
-def handle_subsqeuent_message(message):
+def handle_subsequent_message(message):  # Fixed typo in function name
     try:
         logging.debug(f'Handling subsequent message: {message}')
         response = world_simulator.handle_subsequent_messages(message)
-        socketio.emit('subsequent_message_response', {'response': response})
+        socketio.emit('simulation_response', {'response': response})  # Changed to simulation_response to match client expectations
     except Exception as e:
         logging.error(f'Subsequent message handling error: {str(e)}')
-        socketio.emit('subsequent_message_error', {'error': str(e)})
+        socketio.emit('simulation_error', {'error': str(e)})
