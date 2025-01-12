@@ -4,8 +4,6 @@ import json
 import logging
 from typing import Tuple, Optional, Dict
 from scenario_parser import ScenarioParser
-from heuristics_config import heuristic_list
-
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -17,9 +15,38 @@ if not api_key:
     raise ValueError("ANTHROPIC_API_KEY environment variable is not set")
 
 client = anthropic.Client(api_key=api_key)
-scenario_parser = ScenarioParser
+scenario_parser = ScenarioParser()
+
+negotiations_rules = {
+    "must_do": [
+        "You must prioritize agreements that create the highest combined value for all parties while safeguarding your critical interests.",
+        "You must seek to understand the other party’s goals, constraints, and motivations through active listening and targeted questioning.",
+        "You must ensure all agreements are fair and transparent, reflecting honesty and mutual respect.",
+        "You must explore alternative solutions that align with stated outcomes while respecting defined limits.",
+        "You must use relevant data, historical precedents, and modeled scenarios to support your arguments and predict outcomes.",
+        "You must favor agreements that strengthen long-term relationships, even if they require short-term concessions.",
+        "You must ensure all agreements are explicitly defined, leaving no room for misinterpretation or ambiguity.",
+        "You must make concessions proportional to the value gained and ensure they advance progress toward stated outcomes."
+    ],
+    "must_not_do": [
+        "You must not misrepresent information, make offers that exploit vulnerabilities unfairly, or use coercion.",
+        "You must not prioritize short-term wins at the expense of long-term sustainability or critical interests.",
+        "You must not dismiss or ignore the other party’s stated priorities, concerns, or constraints.",
+        "You must not concede on non-negotiable points or compromise core priorities to reach an agreement.",
+        "You must not enter negotiations without thorough preparation, relying instead on assumptions or incomplete data.",
+        "You must not damage long-term relationships for the sake of immediate gains or unilateral advantage.",
+        "You must not accept or propose agreements with vague terms or undefined conditions.",
+        "You must not make disproportionate concessions that undermine your negotiation position or stated outcomes."
+    ]
+}
 
 
+# Define available heuristics with descriptions
+HEURISTIC_LIST = {
+    'negotiation': f"Calculate the optimum strategy for the negotator(s) to achieve their goal. Work through this four step process. **1** Start by creating as many plausible scenarios as possible that a) meet the goal and b) adhere to the specific parameters of the request and c) meet the 'must do' criteria from the negotaion rules. **2** Next, consider the conditions of the simulated world. Eliminate any options that are **impossible** due to economic, political, regulatory or environmental factors. **3** Elimiate any options breach the 'must not do' rules. **4** Finally, return the optimum solution expaining why that is the best approach. Detail your process as you go and return a clear narrative that is understandable. The negotation rules are {negotiations_rules}",
+    'kidnapping': "Crisis response heuristic for hostage and kidnapping situations",
+    'geopolitics': "Analysis heuristic for international relations and political dynamics",
+}
 
 def check_shortcode(message: str) -> Optional[str]:
     """
@@ -34,7 +61,7 @@ def check_shortcode(message: str) -> Optional[str]:
         if word.startswith('/'):
             # Remove the '/' and check if it's a valid heuristic
             potential_heuristic = word[1:]
-            if potential_heuristic in heuristic_list:
+            if potential_heuristic in HEURISTIC_LIST:
                 logger.debug(f"Found valid shortcode: {potential_heuristic}")
                 return potential_heuristic
 
@@ -81,7 +108,7 @@ def match_heuristic_with_llm(message: str) -> Tuple[str, str]:
             logger.debug(f"LLM matched heuristic: {heuristic} with confidence: {confidence}")
 
             if heuristic != 'none' and confidence > 0.7:
-                return heuristic, heuristic_list[heuristic]
+                return heuristic, HEURISTIC_LIST[heuristic]
             return 'none', 'No matching heuristic found'
 
         except json.JSONDecodeError as e:
@@ -111,7 +138,7 @@ def process_scenario(message: str) -> Dict:
     shortcode_match = check_shortcode(message)
     if shortcode_match:
         heuristic = shortcode_match
-        heuristic_desc = heuristic_list[shortcode_match]
+        heuristic_desc = HEURISTIC_LIST[shortcode_match]
     else:
         heuristic, heuristic_desc = match_heuristic_with_llm(message)
         if heuristic == 'none':
@@ -148,7 +175,7 @@ def initial_routing(message: str) -> str:
     shortcode_match = check_shortcode(message)
     if shortcode_match:
         logger.info(f"Routing via shortcode to heuristic: {shortcode_match}")
-        return heuristic_list[shortcode_match]
+        return HEURISTIC_LIST[shortcode_match]
 
     logger.debug("No shortcode found, attempting LLM matching")
     heuristic, settings = match_heuristic_with_llm(message)
