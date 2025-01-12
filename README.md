@@ -4,4 +4,4 @@ The V1 demo is here
 
 https://youtu.be/lZkC6iePuVQ
 
-*(This was built in replit with the use of reth replit agents, hence the large number of agent comments* 😬)
+*(This was built in replit with the use of the replit agents, hence the large number of agent comments* 😬)
