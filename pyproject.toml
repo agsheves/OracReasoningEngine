@@ -1,7 +1,7 @@
 [project]
-name = "repl-nix-worldsoul"
+name = "Orac Reasoning Engine"
 version = "0.1.0"
-description = "Add your description here"
+description = "An LLM Reasoning Engine designed to solve problems in low / no data domains"
 requires-python = ">=3.11"
 dependencies = [
     "anthropic>=0.42.0",
