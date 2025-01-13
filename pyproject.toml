@@ -1,6 +1,6 @@
 [project]
 name = "Orac Reasoning Engine"
-version = "0.1.0"
+version = "0.1.1"
 description = "An LLM Reasoning Engine designed to solve problems in low / no data domains"
 requires-python = ">=3.11"
 dependencies = [
