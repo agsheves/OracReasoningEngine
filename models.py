@@ -1,7 +1,12 @@
+# models.py
+# Handles the database models for the web app
+# should be remaned to session settings and config
+
 from app import db
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -11,12 +16,15 @@ class User(UserMixin, db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_admin = db.Column(db.Boolean, default=False)
     is_validated = db.Column(db.Boolean, default=False)
-    user_settings = db.Column(db.JSON, default=lambda: {
-        'language': 'en',
-        'auto_save': True,
-        'display_format': 'detailed',
-        'simulation_mode': 'standard'
-    })
+    user_settings = db.Column(
+        db.JSON,
+        default=lambda: {
+            "language": "en",
+            "auto_save": True,
+            "display_format": "detailed",
+            "simulation_mode": "standard",
+        },
+    )
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -24,9 +32,10 @@ class User(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+
 class SimulationSession(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     started_at = db.Column(db.DateTime, default=datetime.utcnow)
     last_interaction = db.Column(db.DateTime, default=datetime.utcnow)
     world_state = db.Column(db.Text)
@@ -34,5 +43,5 @@ class SimulationSession(db.Model):
 
     def initialize_session_settings(self, user):
         self.session_settings = user.user_settings.copy()
-        self.session_settings['first_message'] = False
+        self.session_settings["first_message"] = False
         db.session.commit()
