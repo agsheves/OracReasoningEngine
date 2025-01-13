@@ -1,3 +1,6 @@
+# scenario_parser.py
+# Parses the user input into a structured scenario format to send a standard format to the LLM
+
 import json
 import logging
 from typing import Dict, Optional
@@ -5,15 +8,16 @@ import os
 import anthropic
 
 logger = logging.getLogger(__name__)
-api_key = os.environ.get('ANTHROPIC_API_KEY')
+api_key = os.environ.get("ANTHROPIC_API_KEY")
 if not api_key:
     raise ValueError("ANTHROPIC_API_KEY environment variable is not set")
 
 client = anthropic.Client(api_key=api_key)
 
+
 class ScenarioParser:
     def __init__(self):
-        self.required_fields = ['goal', 'constraints', 'conditions']
+        self.required_fields = ["goal", "constraints", "conditions"]
 
     def parse_scenario(self, user_input: str) -> Dict:
         """
@@ -52,11 +56,9 @@ class ScenarioParser:
             response = client.messages.create(
                 model="claude-3-opus-20240229",
                 max_tokens=2000,
-                messages=[{
-                    "role": "user",
-                    "content": user_input
-                }],
-                system=system_prompt)
+                messages=[{"role": "user", "content": user_input}],
+                system=system_prompt,
+            )
 
             # Parse the structured response
             try:
@@ -87,16 +89,21 @@ class ScenarioParser:
                 "=== Scenario Summary ===\n",
                 f"Goal: {parsed_scenario['goal']}\n",
                 "\nConstraints:",
-                *[f"- {constraint}" for constraint in parsed_scenario['constraints']],
+                *[f"- {constraint}" for constraint in parsed_scenario["constraints"]],
                 "\nConditions:",
-                *[f"- {condition}" for condition in parsed_scenario['conditions']],
+                *[f"- {condition}" for condition in parsed_scenario["conditions"]],
             ]
 
-            if 'parameters' in parsed_scenario:
-                output.extend([
-                    "\nAdditional Parameters:",
-                    *[f"- {key}: {value}" for key, value in parsed_scenario['parameters'].items()]
-                ])
+            if "parameters" in parsed_scenario:
+                output.extend(
+                    [
+                        "\nAdditional Parameters:",
+                        *[
+                            f"- {key}: {value}"
+                            for key, value in parsed_scenario["parameters"].items()
+                        ],
+                    ]
+                )
 
             return "\n".join(output)
 
