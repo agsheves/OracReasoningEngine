@@ -1,3 +1,5 @@
+# simulation.py
+# Initlaizes the simulation and handles the conversation with the LLM with routing for follow up messages
 import anthropic
 import os
 import json
@@ -8,14 +10,13 @@ from datetime import datetime
 class WorldSimulator:
 
     def __init__(self):
-        api_key = os.environ.get('ANTHROPIC_API_KEY')
+        api_key = os.environ.get("ANTHROPIC_API_KEY")
         if not api_key:
-            raise ValueError(
-                "ANTHROPIC_API_KEY environment variable is not set")
+            raise ValueError("ANTHROPIC_API_KEY environment variable is not set")
 
         self.client = anthropic.Client(api_key=api_key)
         self.conversation_history = []  # Initialize empty conversation history
-        self.session_settings = {'first_message_processed': False}
+        self.session_settings = {"first_message_processed": False}
         self.system_prompt = """
         <sys>
         Assistant is operating in WorldSIM CLI mode. Format all responses with:
@@ -67,17 +68,15 @@ class WorldSimulator:
             # Log the input for debugging
             logging.debug(f"Processing user input: {user_input}")
 
-            if not self.session_settings.get('first_message_processed'):
-                #Handle first message
+            if not self.session_settings.get("first_message_processed"):
+                # Handle first message
                 response = self.client.messages.create(
                     model="claude-3-opus-20240229",
                     max_tokens=2000,
-                    messages=[{
-                        "role": "user",
-                        "content": user_input
-                    }],
-                    system=self.system_prompt)
-                
+                    messages=[{"role": "user", "content": user_input}],
+                    system=self.system_prompt,
+                )
+
                 # Log the raw response for debugging
                 logging.debug(f"Raw API response: {response.content[0].text}")
 
@@ -91,44 +90,53 @@ class WorldSimulator:
                     # Parse as JSON if possible for structured output
                     try:
                         parsed_response = {
-                            'response':
-                            content,
-                            'state_update':
-                            response.content[0].text.split(
-                                'State Update:')[-1].split('\n')[0].strip() if
-                            'State Update:' in response.content[0].text else None,
-                            'available_actions': [
-                                action.strip()
-                                for action in response.content[0].text.split(
-                                    'Available actions:')[-1].split('\n')[0].split(
-                                        ',')
-                            ] if 'Available actions:' in response.content[0].text
-                            else []
+                            "response": content,
+                            "state_update": (
+                                response.content[0]
+                                .text.split("State Update:")[-1]
+                                .split("\n")[0]
+                                .strip()
+                                if "State Update:" in response.content[0].text
+                                else None
+                            ),
+                            "available_actions": (
+                                [
+                                    action.strip()
+                                    for action in response.content[0]
+                                    .text.split("Available actions:")[-1]
+                                    .split("\n")[0]
+                                    .split(",")
+                                ]
+                                if "Available actions:" in response.content[0].text
+                                else []
+                            ),
                         }
 
                         # Add user message and assistant response to conversation history
-                        self.conversation_history.append({
-                            "role": "user",
-                            "content": user_input
-                        })
-                        self.conversation_history.append({
-                            "role": "assistant",
-                            "content": content
-                        })
-                        self.session_settings['first_message_processed'] = True
+                        self.conversation_history.append(
+                            {"role": "user", "content": user_input}
+                        )
+                        self.conversation_history.append(
+                            {"role": "assistant", "content": content}
+                        )
+                        self.session_settings["first_message_processed"] = True
                         return json.dumps(parsed_response)
                     except:
                         # If not JSON, return formatted text
-                        return json.dumps({
-                            'response': content,
-                        })
+                        return json.dumps(
+                            {
+                                "response": content,
+                            }
+                        )
 
                 except json.JSONDecodeError as je:
                     logging.error(f"JSON parsing error: {je}")
                     # Return a formatted error response
-                    return json.dumps({
-                        "response": response.content[0].text,
-                    })
+                    return json.dumps(
+                        {
+                            "response": response.content[0].text,
+                        }
+                    )
             else:
                 return self.handle_subsequent_messages(user_input)
 
@@ -143,33 +151,35 @@ class WorldSimulator:
             logging.debug(f"Current conversation history: {self.conversation_history}")
 
             # If user_message is a dict with 'input' key, extract the actual message
-            message_content = user_message['input'] if isinstance(user_message, dict) else user_message
+            message_content = (
+                user_message["input"]
+                if isinstance(user_message, dict)
+                else user_message
+            )
 
             # Construct the conversation history for the LLM
-            messages = self.conversation_history + [{"role": "user", "content": message_content}]
+            messages = self.conversation_history + [
+                {"role": "user", "content": message_content}
+            ]
 
             # Send to the LLM
             response = self.client.messages.create(
                 model="claude-3-opus-20240229",
                 max_tokens=2000,
                 messages=messages,
-                system=self.system_prompt
+                system=self.system_prompt,
             )
 
             # Log the response
             logging.debug(f"Response from LLM: {response.content[0].text}")
 
             # Append the new user message and response to the conversation history
-            self.conversation_history.extend([
-                {
-                    "role": "user",
-                    "content": message_content
-                },
-                {
-                    "role": "assistant",
-                    "content": response.content[0].text
-                }
-            ])
+            self.conversation_history.extend(
+                [
+                    {"role": "user", "content": message_content},
+                    {"role": "assistant", "content": response.content[0].text},
+                ]
+            )
 
             return response.content[0].text
 
