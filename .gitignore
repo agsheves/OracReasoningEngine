@@ -20,6 +20,7 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+replit.nix
 
 # Application specific
 rules.py
