@@ -1,3 +1,6 @@
+# routing_and_logic.py
+# Handles the query routing - needs to be consilidated with other message routing and logging vs app logic
+
 import anthropic
 import os
 import json
@@ -13,7 +16,7 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 # Initialize Anthropic client
-api_key = os.environ.get('ANTHROPIC_API_KEY')
+api_key = os.environ.get("ANTHROPIC_API_KEY")
 if not api_key:
     raise ValueError("ANTHROPIC_API_KEY environment variable is not set")
 
@@ -34,7 +37,7 @@ def check_shortcode(message: str) -> Optional[str]:
 
     words = message.lower().split()
     for word in words:
-        if word.startswith('/'):
+        if word.startswith("/"):
             # Remove the '/' and check if it's a valid heuristic
             potential_heuristic = word[1:]
             if potential_heuristic in HEURISTIC_LIST:
@@ -44,8 +47,10 @@ def check_shortcode(message: str) -> Optional[str]:
     logger.debug("No valid shortcode found")
     return None
 
+
 ## Adapt this to handle and route the specific domains defined in the HEURISTICS_LIST in rules.py
- 
+
+
 def match_heuristic_with_llm(message: str) -> Tuple[str, str]:
     """
     Use Claude to match message content with appropriate heuristic.
@@ -71,31 +76,31 @@ def match_heuristic_with_llm(message: str) -> Tuple[str, str]:
         response = client.messages.create(
             model="claude-3-opus-20240229",
             max_tokens=2000,
-            messages=[{
-                "role": "user",
-                "content": message
-            }],
-            system=system_prompt
+            messages=[{"role": "user", "content": message}],
+            system=system_prompt,
         )
 
         try:
             result = json.loads(response.content[0].text)
-            heuristic = result.get('heuristic', 'none')
-            confidence = result.get('confidence', 0.0)
+            heuristic = result.get("heuristic", "none")
+            confidence = result.get("confidence", 0.0)
 
-            logger.debug(f"LLM matched heuristic: {heuristic} with confidence: {confidence}")
+            logger.debug(
+                f"LLM matched heuristic: {heuristic} with confidence: {confidence}"
+            )
 
-            if heuristic != 'none' and confidence > 0.7:
+            if heuristic != "none" and confidence > 0.7:
                 return heuristic, HEURISTIC_LIST[heuristic]
-            return 'none', 'No matching heuristic found'
+            return "none", "No matching heuristic found"
 
         except json.JSONDecodeError as e:
             logger.error(f"Failed to parse LLM response: {e}")
-            return 'none', 'Error parsing response'
+            return "none", "Error parsing response"
 
     except Exception as e:
         logger.error(f"Error in LLM matching: {e}")
-        return 'none', 'Error in processing'
+        return "none", "Error in processing"
+
 
 def process_scenario(message: str) -> Dict:
     """
@@ -119,29 +124,30 @@ def process_scenario(message: str) -> Dict:
         heuristic_desc = HEURISTIC_LIST[shortcode_match]
     else:
         heuristic, heuristic_desc = match_heuristic_with_llm(message)
-        if heuristic == 'none':
+        if heuristic == "none":
             raise ValueError("Could not match scenario to any available heuristic")
 
     # Step 2: Parse scenario details
     try:
         parsed_scenario = scenario_parser.parse_scenario(message)
         # Add the matched heuristic to the scenario parameters
-        parsed_scenario['parameters'] = parsed_scenario.get('parameters', {})
-        parsed_scenario['parameters']['heuristic'] = heuristic
+        parsed_scenario["parameters"] = parsed_scenario.get("parameters", {})
+        parsed_scenario["parameters"]["heuristic"] = heuristic
 
         # Step 3: Format for display
         display_format = scenario_parser.format_for_display(parsed_scenario)
 
         return {
-            'heuristic': heuristic,
-            'heuristic_description': heuristic_desc,
-            'parsed_scenario': parsed_scenario,
-            'display_format': display_format,
-            'original_prompt': message  # Include original prompt for editing
+            "heuristic": heuristic,
+            "heuristic_description": heuristic_desc,
+            "parsed_scenario": parsed_scenario,
+            "display_format": display_format,
+            "original_prompt": message,  # Include original prompt for editing
         }
     except Exception as e:
         logger.error(f"Error processing scenario: {e}")
         raise
+
 
 def initial_routing(message: str) -> str:
     """
@@ -158,7 +164,7 @@ def initial_routing(message: str) -> str:
     logger.debug("No shortcode found, attempting LLM matching")
     heuristic, settings = match_heuristic_with_llm(message)
 
-    if heuristic == 'none':
+    if heuristic == "none":
         logger.info("No matching heuristic found")
         return "No specific heuristic matched - using default processing"
 
