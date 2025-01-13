@@ -1,9 +1,15 @@
+# test_simulation.py
+# Tests the simulation functionality
+# add more mini tests
+#
 import sys
 import os
 import json
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from simulation import WorldSimulator
+
 
 def test_create_world():
     """Test world creation functionality"""
@@ -21,6 +27,7 @@ def test_create_world():
         print(f"Error occurred: {e}")
         return False
 
+
 def test_query_world():
     """Test world querying functionality"""
     print("\n=== Testing World Query ===")
@@ -37,19 +44,20 @@ def test_query_world():
         print(f"Error occurred: {e}")
         return False
 
+
 def run_specific_test(test_name):
     """Run a specific test by name"""
-    tests = {
-        "create": test_create_world,
-        "query": test_query_world
-    }
+    tests = {"create": test_create_world, "query": test_query_world}
 
     if test_name in tests:
         print(f"\nRunning test: {test_name}")
         return tests[test_name]()
     else:
-        print(f"Test '{test_name}' not found. Available tests: {', '.join(tests.keys())}")
+        print(
+            f"Test '{test_name}' not found. Available tests: {', '.join(tests.keys())}"
+        )
         return False
+
 
 def run_all_tests():
     """Run all available tests"""
@@ -60,8 +68,11 @@ def run_all_tests():
     for test in tests:
         results.append(test())
 
-    print(f"\nTests completed: {sum(results)} passed, {len(results) - sum(results)} failed")
+    print(
+        f"\nTests completed: {sum(results)} passed, {len(results) - sum(results)} failed"
+    )
     return all(results)
+
 
 if __name__ == "__main__":
     # Check if a specific test was requested
@@ -70,7 +81,9 @@ if __name__ == "__main__":
         run_specific_test(test_name)
     else:
         print("=== WorldSimulator Test Suite ===")
-        print("To run a specific test, use: python tests/test_simulation.py <test_name>")
+        print(
+            "To run a specific test, use: python tests/test_simulation.py <test_name>"
+        )
         print("Available tests: create, query")
         print("Running all tests by default...\n")
         run_all_tests()
