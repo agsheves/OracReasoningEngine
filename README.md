@@ -9,6 +9,15 @@ A demo of the first version is here
 https://youtu.be/lZkC6iePuVQ
 
 ---
+### Customization
+
+The ```rules_demo.py``` file contains the specific rules for each domain and the main prompt which combines general guidance for that domain and the specific rules. Fork the repo and then edit and amend these rules for your own domains. For best performance, try to write rules that are clearly provable/falsifiable and ensure that none of the rules contradict each other. 
+
+The demo includes rules for negotiations and placeholders for other specialties. Rules are listed separately from the main heuristic to help keep this manageable and legible but are combined in the prompt to the model.
+
+It can be useful to request the model to consider the 'must do' rules first, as this should provide the greatest number of options before eliminating those in the 'must not do' category.
+
+---
 
 ### This is an open-source project
 
