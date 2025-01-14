@@ -23,7 +23,6 @@ var/
 replit.nix
 
 # Application specific
-rules.py
 .env
 *.log
 .replit
