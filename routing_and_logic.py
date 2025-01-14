@@ -7,9 +7,9 @@ import json
 import logging
 from typing import Tuple, Optional, Dict
 from scenario_parser import ScenarioParser
-from rules import negotiations_rules, HEURISTIC_LIST
+from rules_DEMO import negotiations_rules, HEURISTIC_LIST
 
-## the rules.py file holds the prompts and specific rules / heuristics for each domain. This in in gitignore so you will need to add you own rules.py file and guidance.
+## the rules_demo.py file holds the prompts and specific rules / heuristics for each domain.
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -48,7 +48,7 @@ def check_shortcode(message: str) -> Optional[str]:
     return None
 
 
-## Adapt this to handle and route the specific domains defined in the HEURISTICS_LIST in rules.py
+## Adapt this to handle and route the specific domains defined in the HEURISTICS_LIST in rules_demo.py
 
 
 def match_heuristic_with_llm(message: str) -> Tuple[str, str]:
