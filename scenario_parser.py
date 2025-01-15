@@ -26,7 +26,12 @@ class ScenarioParser:
         """
         try:
             # Format the prompt to extract structured information
-            system_prompt = """
+            # Get the heuristic and rules if they exist in the message
+            heuristic, heuristic_rules = routing_and_logic.match_heuristic_with_llm(user_input)
+            
+            system_prompt = f"""
+            Using the following heuristic rules if applicable: {heuristic_rules}
+            
             Parse the given scenario into a structured format. Extract:
             1. Main goal/objective
             2. Time constraints or deadlines
