@@ -165,7 +165,10 @@ def handle_simulation(message):
         if hasattr(current_user, "id"):
             session = SimulationSession()
             session.user_id = current_user.id
-            session.world_state = json.dumps(scenario_data["parsed_scenario"])
+            session.world_state = json.dumps({
+                "parsed_scenario": scenario_data["parsed_scenario"],
+                "heuristic_settings": scenario_data.get("heuristic_settings", {})
+            })
             db.session.add(session)
             db.session.commit()
             if hasattr(session, "initialize_session_settings"):
@@ -192,7 +195,9 @@ def handle_simulation_confirmation(confirmed):
 
             # Initaize the world simulator with the base scenario
             scenario = json.loads(session.world_state)
-            response = world_simulator.initialize_simulation(json.dumps(scenario))
+            scenario_with_heuristics = {"scenario": scenario, "heuristics": routing_and_logic.get_heuristics()}
+            print(f"=====Logging=====\nScenario and heuristic payload:\n{scenario_with_heuristics}")
+            response = world_simulator.initialize_simulation(json.dumps(scenario_with_heuristics))
             socketio.emit("simulation_response", {"response": response})
         else:
             socketio.emit(
