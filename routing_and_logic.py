@@ -1,5 +1,6 @@
 # routing_and_logic.py
 # Handles the query routing - needs to be consilidated with other message routing and logging vs app logic
+# Need simplification into a single routes / routing / logic module
 
 import anthropic
 import os

@@ -1,6 +1,6 @@
 # routes.py
 # Handles the routes for the web app
-# Could benefit from moving some of the logic back into the simulation.py or routing and logic file
+# Would benefit from moving some of the logic back into the simulation.py or routing and logic file
 
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user, login_required, current_user
@@ -149,7 +149,9 @@ def handle_simulation(message):
 
         # Get the heuristic settings from the HEURISTIC_LIST
         heuristic_name = scenario_data["heuristic"]
-        heuristic_settings = {"heuristic_prompt": routing_and_logic.HEURISTIC_LIST.get(heuristic_name, "")}
+        heuristic_settings = {
+            "heuristic_prompt": routing_and_logic.HEURISTIC_LIST.get(heuristic_name, "")
+        }
 
         # Emit the formatted scenario for confirmation
         socketio.emit(
@@ -169,10 +171,12 @@ def handle_simulation(message):
             session = SimulationSession()
             session.user_id = current_user.id
             # Store both scenario and heuristic settings in world_state
-            session.world_state = json.dumps({
-                "parsed_scenario": scenario_data["parsed_scenario"],
-                "heuristic_settings": heuristic_settings
-            })
+            session.world_state = json.dumps(
+                {
+                    "parsed_scenario": scenario_data["parsed_scenario"],
+                    "heuristic_settings": heuristic_settings,
+                }
+            )
             db.session.add(session)
             db.session.commit()
             if hasattr(session, "initialize_session_settings"):
@@ -199,8 +203,12 @@ def handle_simulation_confirmation(confirmed):
 
             # Initaize the world simulator with the base scenario
             scenario_with_heuristics = json.loads(session.world_state)
-            print(f"=====Logging=====\nScenario and heuristic payload:\n{scenario_with_heuristics}")
-            response = world_simulator.initialize_simulation(json.dumps(scenario_with_heuristics))
+            print(
+                f"=====Logging=====\nScenario and heuristic payload:\n{scenario_with_heuristics}"
+            )
+            response = world_simulator.initialize_simulation(
+                json.dumps(scenario_with_heuristics)
+            )
             socketio.emit("simulation_response", {"response": response})
         else:
             socketio.emit(
