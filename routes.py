@@ -194,8 +194,7 @@ def handle_simulation_confirmation(confirmed):
                 raise ValueError("No active simulation session found")
 
             # Initaize the world simulator with the base scenario
-            scenario = json.loads(session.world_state)
-            scenario_with_heuristics = {"scenario": scenario, "heuristics": routing_and_logic.get_heuristics()}
+            scenario_with_heuristics = json.loads(session.world_state)
             print(f"=====Logging=====\nScenario and heuristic payload:\n{scenario_with_heuristics}")
             response = world_simulator.initialize_simulation(json.dumps(scenario_with_heuristics))
             socketio.emit("simulation_response", {"response": response})
