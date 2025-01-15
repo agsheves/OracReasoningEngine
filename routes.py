@@ -141,12 +141,15 @@ def routed_message(message):
         handle_subsequent_message(message)  # Fixed typo in function name
 
 
-# @socketio.on('simulate')
 def handle_simulation(message):
     try:
         logging.debug(f'Processing simulation request: {message["input"]}')
         # First, process the scenario
         scenario_data = routing_and_logic.process_scenario(message["input"])
+
+        # Get the heuristic settings from the HEURISTIC_LIST
+        heuristic_name = scenario_data["heuristic"]
+        heuristic_settings = {"heuristic_prompt": routing_and_logic.HEURISTIC_LIST.get(heuristic_name, "")}
 
         # Emit the formatted scenario for confirmation
         socketio.emit(
@@ -165,9 +168,10 @@ def handle_simulation(message):
         if hasattr(current_user, "id"):
             session = SimulationSession()
             session.user_id = current_user.id
+            # Store both scenario and heuristic settings in world_state
             session.world_state = json.dumps({
                 "parsed_scenario": scenario_data["parsed_scenario"],
-                "heuristic_settings": scenario_data.get("heuristic_settings", {})
+                "heuristic_settings": heuristic_settings
             })
             db.session.add(session)
             db.session.commit()
