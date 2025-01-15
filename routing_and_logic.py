@@ -48,7 +48,9 @@ def check_shortcode(message: str) -> Optional[str]:
     return None
 
 
-## Adapt this to handle and route the specific domains defined in the HEURISTICS_LIST in rules_demo.py
+## Adapt this section to handle and route the specific domains defined in the HEURISTICS_LIST in rules_demo.py
+## The lines "For geopolitical analysis..." should use a term that matches the heuristic name and give
+## some general parameters to help the LLM match the inout to a heuristic
 
 
 def match_heuristic_with_llm(message: str) -> Tuple[str, str]:
