@@ -27,8 +27,7 @@ class ScenarioParser:
         try:
             # Format the prompt to extract structured information
             
-            system_prompt = f"""
-            
+            system_prompt = """
             Parse the given scenario into a structured format. Extract:
             1. Main goal/objective
             2. Time constraints or deadlines
@@ -52,7 +51,7 @@ class ScenarioParser:
                     "timeline": "relevant timeframe"
                 }
             }
-            If you cannot identify any of these elements, respond with "none specified" for that field to ensure there is a coplete JSON payload returned.
+            If you cannot identify any of these elements, respond with "none specified" for that field to ensure there is a complete JSON payload returned.
             """
 
             response = client.messages.create(
