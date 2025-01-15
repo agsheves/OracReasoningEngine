@@ -8,7 +8,7 @@ Last updated 14th January 2025 @ 15:50
 
 ## Long term tasks
 
-Simplify the routing and logic into a single module
+Simplify the routing and logic module
 Improve consistency with the model logic and outputs
 Add heuristics for geopolitics and crisis management
 Manage rate limits once multiple users have access to web version
