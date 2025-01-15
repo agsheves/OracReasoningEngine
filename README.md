@@ -32,7 +32,7 @@ It can be useful to request the model to consider the 'must do' rules first, as 
 
 This software would not have been possible without the generosity of many in the security risk management and AI communities so, to maintain that spirit of openness, the code is being released under the GNU Affero General Public License. This is in the hope that many people will be able to benefit from this approach to decision-making and encourage others in the Security Risk Management space to take an equally collaborative approach.
 
-Big thanks to [Replit](replit.com) for making such easy-to-use tools and to Karan @ [Nous Research](https://nousresearch.com) for introducing me to the idea of worldsim. 🙏
+Big thanks to [Replit](replit.com) for making such easy-to-use tools and to Karan (x: @karan4d) from [Nous Research](https://nousresearch.com) for introducing me to the idea of worldsim. 🙏
 
 The repo is made available for testing and experimentation, and Decis Intelligence is not responsible for any loss, damage, injury, or outage resulting from the use of the tool's outputs.
 
