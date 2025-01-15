@@ -26,3 +26,4 @@ replit.nix
 .env
 *.log
 .replit
+rules_DEMO.py
