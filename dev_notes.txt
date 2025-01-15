@@ -2,11 +2,13 @@ Task list
 Last updated 14th January 2025 @ 15:50
 
 ✅ Add conversation history to session_settings
-✅  Add first_message to session_settings
-✅  Append messages to conversation_histoy before resending to model
+✅ Add first_message to session_settings
+✅ Append messages to conversation_histoy before resending to model
+✅ Fixed payload formatting to ensure scenario and heuristics are correctly formatted
 
 ## Long term tasks
 
+Simplify the routing and logic into a single module
 Improve consistency with the model logic and outputs
 Add heuristics for geopolitics and crisis management
 Manage rate limits once multiple users have access to web version
