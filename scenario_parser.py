@@ -1,5 +1,6 @@
 # scenario_parser.py
 # Parses the user input into a structured scenario format to send a standard format to the LLM
+# Would benefit from moving some of the logic back into the simulation.py or routing and logic file
 
 import json
 import logging
@@ -26,7 +27,7 @@ class ScenarioParser:
         """
         try:
             # Format the prompt to extract structured information
-            
+
             system_prompt = """
             Parse the given scenario into a structured format. Extract:
             1. Main goal/objective
