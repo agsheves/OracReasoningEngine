@@ -25,7 +25,8 @@ negotiations_rules = {
 }
 
 HEURISTIC_LIST = {
-    "negotiation": f"Calculate the optimum strategy for the negotator(s) to achieve their goal. Work through this four step process. **1** Start by creating as many plausible scenarios as possible that a) meet the goal and b) adhere to the specific parameters of the request and c) meet the 'must do' criteria from the negotaion rules. **2** Next, consider the conditions of the simulated world. Eliminate any options that are **impossible** due to economic, political, regulatory or environmental factors. **3** Elimiate any options breach the 'must not do' rules. **4** Finally, return the optimum solution expaining why that is the best approach. Detail your process as you go and return a clear narrative that is understandable. The negotation rules are {negotiations_rules}",
-    "kidnapping": "Crisis response heuristic for hostage and kidnapping situations",
-    "geopolitics": "Analysis heuristic for international relations and political dynamics",
+    "negotiation":
+    f"Calculate the optimum strategy for the negotiator(s) to achieve their goal. Work through this four step process. **1** Start by creating as many plausible scenarios as possible that a) meet the goal and b) adhere to the specific parameters of the request and c) meet the 'must do' criteria from the negotiation rules. **2** Next, consider the conditions of the simulated world. Eliminate any options that are **impossible** due to economic, political, regulatory or environmental factors. **3** Elimiate any options breach the 'must not do' rules. **4** Finally, return the optimum solution expaining why that is the best approach. Take your time and explain your thinking for each step so the user can understand the process followed and decisions made. Explicitly note where an option was rejected for breachiug a rule. Expain the final suggestion in a clear narrative that is understandable. The negotation rules are {negotiations_rules}",
+    "geopolitics":
+    "Analysis heuristic for international relations and political dynamics",
 }
