@@ -19,6 +19,10 @@ A demo of the first version is here
 
 https://youtu.be/lZkC6iePuVQ
 
+Update - 21/01/2025 
+
+An updated version of the [demo is here](https://www.loom.com/share/2c47161005ee4a518b09a0b7856b4bf2?sid=38b06535-9ec7-4fda-b567-b11babde37e0) This shows the updated structure for the model output.
+
 ---
 ### Customization
 
