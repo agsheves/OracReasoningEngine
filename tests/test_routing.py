@@ -18,9 +18,6 @@ class TestRouting(unittest.TestCase):
 
         # Test valid shortcodes
         self.assertEqual(check_shortcode("/negotiation"), "negotiation")
-        self.assertEqual(
-            check_shortcode("Let's use /kidnapping scenario"), "kidnapping"
-        )
         self.assertEqual(check_shortcode("Apply /geopolitics here"), "geopolitics")
 
         # Test invalid or missing shortcodes

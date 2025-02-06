@@ -35,8 +35,9 @@ class ScenarioParser:
             3. Specific conditions or rules
             4. Key parameters or variables
 
-            For geopolitical scenarios, consider:
-            - International relations
+            For geopolitical scenarios, identify any factors relating to:
+            - Current state of relationships
+            - Intent or motivation of all concerned parties
             - Economic factors
             - Strategic implications
             - Current global context

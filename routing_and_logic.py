@@ -64,12 +64,12 @@ def match_heuristic_with_llm(message: str) -> Tuple[str, str]:
     system_prompt = """
     Analyze the following scenario and determine which heuristic best matches its content.
     For geopolitical analysis involving international relations, trade, or political dynamics, use the 'geopolitics' heuristic.
-    For negotiation scenarios involving diplomatic discussions or conflict resolution, use the 'negotiation' heuristic.
-    For crisis scenarios involving immediate threats or hostage situations, use the 'kidnapping' heuristic.
+    For negotiation scenarios involving corporate discussions or conflict resolution, use the 'negotiation' heuristic.
+    
 
     Respond in JSON format only:
     {
-        "heuristic": "geopolitics|negotiation|kidnapping|none",
+        "heuristic": "geopolitics|negotiation|none",
         "confidence": <float between 0 and 1>,
         "reasoning": "<brief explanation>"
     }

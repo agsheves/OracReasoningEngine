@@ -24,9 +24,83 @@ negotiations_rules = {
     ],
 }
 
+geopolitical_strategy_rules = {
+   "must_do": [
+       "You must maintain 3+ independent paths to all critical resources",
+       "You must keep one friendly power between you and potential adversaries",
+       "You must hold leverage worth 2x any requested concession",
+       "You must maintain 3:1 advantage in at least one critical domain vs any adversary",
+       "You must maintain three distinct partner levels (core, strategic, tactical)",
+       "You must keep secondary partnerships at 50%+ value of primary alliances",
+       "You must ensure strategic plans survive loss of any single alliance",
+       "You must maintain ability to reverse any position within 2 strategic cycles",
+       "You must plan resources for 2x expected timeline",
+       "You must ensure benefits exceed costs by 3x for strategic moves",
+       "You must keep position viable if 2 major assumptions fail"
+   ],
+   "must_not_do": [
+       "You must not let single adversary control >40% of vital supply",
+       "You must not let any alliance control >60% of strategic options", 
+       "You must not allow adversary to achieve >50% control of strategic domain",
+       "You must not accept single points of failure in critical systems",
+       "You must not lose independent action capability",
+       "You must not commit >30% resources to single strategy",
+       "You must not commit >40% strategic resources to single theater",
+       "You must not accept strategic damage >20% from single loss",
+       "You must not take positions requiring 100% alliance compliance",
+       "You must not accept timelines requiring perfect execution",
+       "You must not assume adversary incompetence",
+       "You must not assume permanent alignment of interests",
+       "You must not assume technology will solve structural problems",
+       "You must not plan without multiple contingencies",
+       "You must not accept unverifiable intelligence about adversary capabilities"
+   ]
+}
+
 HEURISTIC_LIST = {
     "negotiation":
-    f"Calculate the optimum strategy for the negotiator(s) to achieve their goal. Work through this four step process. **1** Start by creating as many plausible scenarios as possible that a) meet the goal and b) adhere to the specific parameters of the request and c) meet the 'must do' criteria from the negotiation rules. **2** Next, consider the conditions of the simulated world. Eliminate any options that are **impossible** due to economic, political, regulatory or environmental factors. **3** Elimiate any options breach the 'must not do' rules. **4** Finally, return the optimum solution expaining why that is the best approach. Take your time and explain your thinking for each step so the user can understand the process followed and decisions made. Explicitly note where an option was rejected for breachiug a rule. Expain the final suggestion in a clear narrative that is understandable. The negotation rules are {negotiations_rules}",
-    "geopolitics":
-    "Analysis heuristic for international relations and political dynamics",
+    f"""
+Calculate the optimum strategy for the negotiator(s) to achieve their goal. Work through this four step process. 
+**1** Start by creating as many plausible scenarios as possible that a) meet the goal and b) adhere to the specific parameters of the request and c) meet the 'must do' criteria from the negotiation rules. 
+**2** Next, consider the conditions of the simulated world. Eliminate any options that are **impossible** due to economic, political, regulatory or environmental factors. 
+**3** Elimiate any options breach the 'must not do' rules. 
+**4** Finally, return the optimum solution expaining why that is the best approach. 
+Take your time and explain your thinking for each step so the user can understand the process followed and decisions made. Explicitly note where an option was rejected for breachiug a rule. Expain the final suggestion in a clear narrative that is understandable. The negotation rules are {negotiations_rules}
+""",
+    "geopolitics": f"""
+Analyze geopolitical scenarios and develop strategic recommendations by following this structured process:
+
+    1. SITUATION MAPPING
+    - Map all relevant actors, capabilities, and relationships
+    - Identify critical resources, chokepoints, and centers of gravity
+    - Document key assumptions and intelligence confidence levels
+    - List explicit constraints from scenario
+    - Define success criteria and objectives
+
+    2. OPPORTUNITY ANALYSIS
+    Generate potential strategies that:
+    a) Meet defined objectives
+    b) Adhere to scenario constraints
+    c) Comply with all 'must do' rules
+    d) Account for likely responses from all major actors
+
+    3. FEASIBILITY FILTERING
+    Eliminate strategies that:
+    a) Violate physical, economic, or political realities
+    b) Breach any 'must not do' rules
+    c) Rely on unrealistic assumptions
+    d) Cannot survive likely countermoves
+    Document elimination reasoning.
+
+    4. OPTIMAL STRATEGY SELECTION
+    - Evaluate remaining strategies for:
+      * Success probability
+      * Resource efficiency
+      * Risk-reward balance
+      * Long-term sustainability
+    - Select and justify optimal approach
+    - Identify key decision points
+
+Take your time and explain your thinking for each step so the user can understand the process followed and decisions made. Explicitly note where an option was rejected for breachiug a rule. Expain the final suggestion in a clear narrative that is understandable. The strategic framework rules are: {geopolitical_strategy_rules}
+    """
 }
