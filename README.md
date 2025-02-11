@@ -15,9 +15,9 @@ This demo provides a series of "must do" and "must not do" conditions to the mod
 
 Positive early tests applying this approach to corporate negotiations and geopolitical challenges show that this practical approach could unlock AI's potential in these high-value domains.
 
-A demo of the first version is here
+A demo of how this works is here
 
-https://youtu.be/lZkC6iePuVQ
+[https://youtu.be/lZkC6iePuVQ](https://github.com/agsheves/OracReasoningEngine)
 
 Update - 21/01/2025 
 
