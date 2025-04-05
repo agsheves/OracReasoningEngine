@@ -8,7 +8,9 @@ import json
 import logging
 from typing import Tuple, Optional, Dict
 from scenario_parser import ScenarioParser
-from rules_DEMO import negotiations_rules, HEURISTIC_LIST
+
+# from rules_DEMO import negotiations_rules, HEURISTIC_LIST
+from heuristics import HEURISTIC_LIST
 
 ## the rules_demo.py file holds the prompts and specific rules / heuristics for each domain.
 
@@ -23,9 +25,28 @@ if not api_key:
 
 client = anthropic.Client(api_key=api_key)
 scenario_parser = ScenarioParser()
+available_heuristics = list_all_heuristic_names()
 
 
 # Define available heuristics with descriptions
+def list_all_heuristic_names():
+    print("\nAvailable heuristics:")
+    for heuristic_id, details in heuristics["heuristics"].items():
+        print(f"- {details['name']} (ID: {heuristic_id})")
+
+
+def list_all_heuristic_names_and_characteristics():
+    print("Available heuristics and characteristics:\n")
+    for heuristic_id, details in heuristics["heuristics"].items():
+        print(f"- {details['name']} (ID: {heuristic_id})")
+        print(f"  Description: {details['description']}")
+        print(".\n")
+
+
+def get_heuristic_details(heuristic_id):
+    if heuristic_id in heuristics["heuristics"]:
+        return heuristics["heuristics"][heuristic_id]
+    return None
 
 
 def check_shortcode(message: str) -> Optional[str]:
@@ -63,13 +84,11 @@ def match_heuristic_with_llm(message: str) -> Tuple[str, str]:
 
     system_prompt = """
     Analyze the following scenario and determine which heuristic best matches its content.
-    For geopolitical analysis involving international relations, trade, or political dynamics, use the 'geopolitics' heuristic.
-    For negotiation scenarios involving diplomatic discussions or conflict resolution, use the 'negotiation' heuristic.
-    For crisis scenarios involving immediate threats or hostage situations, use the 'kidnapping' heuristic.
+    {available_heuristic_names_and_characteristics}
 
     Respond in JSON format only:
     {
-        "heuristic": "geopolitics|negotiation|kidnapping|none",
+        "heuristic": <heuristic_name>,
         "confidence": <float between 0 and 1>,
         "reasoning": "<brief explanation>"
     }
@@ -152,10 +171,12 @@ def process_scenario(message: str) -> Dict:
         raise
 
 
-def initial_routing(message: str) -> str:
+def initial_routing(message: str) -> Dict:
     """
-    Main routing function that checks for shortcodes first,
-    then falls back to LLM matching if no shortcode is found.
+    Main routing function that checks for shortcodes.
+    If no shortcode is found, it uses the LLM to match the heuristic.
+    If no matching heuristic is found, it uses the general model.
+    Returns the settings for the matched heuristic or general model.
     """
     logger.debug(f"Processing message for routing: {message}")
 
@@ -169,7 +190,9 @@ def initial_routing(message: str) -> str:
 
     if heuristic == "none":
         logger.info("No matching heuristic found")
-        return "No specific heuristic matched - using default processing"
+        settings = scenario_parser.parse_scenario(message)
+        heuristic = "general model"
 
     logger.info(f"Routing via LLM match to heuristic: {heuristic}")
+
     return settings

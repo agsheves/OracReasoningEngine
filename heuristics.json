@@ -1,0 +1,177 @@
+{
+  "heuristics": {
+    "corporate_negotiation": {
+      "name": "Corporate Negotiation",
+      "description": "Calculate the optimum strategy for negotiators to achieve their goals",
+      "parameters": {
+        "max_concessions": 3,
+        "min_confidence": 0.7,
+        "timeout_seconds": 300,
+        "max_retries": 2
+      },
+      "rules": {
+        "must_do": [
+          "Prioritize agreements that create highest combined value",
+          "Seek to understand other party's goals and constraints",
+          "Ensure agreements are fair and transparent",
+          "Explore alternative solutions",
+          "Use relevant data and precedents",
+          "Favor long-term relationships",
+          "Ensure explicit definitions",
+          "Make proportional concessions"
+        ],
+        "must_not_do": [
+          "Misrepresent information",
+          "Prioritize short-term wins",
+          "Dismiss other party's priorities",
+          "Concede on non-negotiable points",
+          "Enter unprepared",
+          "Damage long-term relationships",
+          "Accept vague terms",
+          "Make disproportionate concessions"
+        ]
+      }
+    },
+    "geopolitical_strategy": {
+      "name": "Geopolitical Strategy",
+      "description": "Analyze geopolitical scenarios and develop strategic recommendations",
+      "parameters": {
+        "max_alliances": 3,
+        "min_resource_paths": 3,
+        "leverage_multiplier": 2.0,
+        "advantage_ratio": 3.0
+      },
+      "rules": {
+        "must_do": [
+          "Maintain 3+ independent paths to critical resources",
+          "Keep one friendly power between you and adversaries",
+          "Hold leverage worth 2x any requested concession",
+          "Maintain 3:1 advantage in critical domains",
+          "Maintain three distinct partner levels",
+          "Keep secondary partnerships at 50%+ value",
+          "Ensure plans survive loss of any alliance",
+          "Maintain ability to reverse positions",
+          "Plan resources for 2x expected timeline",
+          "Ensure 3x benefits over costs",
+          "Keep position viable if 2 assumptions fail"
+        ],
+        "must_not_do": [
+          "Let single adversary control >40% of vital supply",
+          "Let alliance control >60% of strategic options",
+          "Allow >50% adversary control of strategic domain",
+          "Accept single points of failure",
+          "Lose independent action capability",
+          "Commit >30% resources to single strategy",
+          "Commit >40% resources to single theater",
+          "Accept >20% strategic damage from single loss",
+          "Take positions requiring 100% alliance compliance",
+          "Accept timelines requiring perfect execution",
+          "Assume adversary incompetence",
+          "Assume permanent alignment of interests",
+          "Assume technology solves structural problems",
+          "Plan without multiple contingencies",
+          "Accept unverifiable intelligence"
+        ]
+      }
+    },
+    "trading_strategy": {
+      "name": "Trading Strategy",
+      "description": "Analyze market conditions and develop optimal trading strategies",
+      "parameters": {
+        "max_position_size": 0.1,
+        "stop_loss": 0.02,
+        "take_profit": 0.04,
+        "max_drawdown": 0.15,
+        "risk_reward_ratio": 2.0
+      },
+      "rules": {
+        "must_do": [
+          "Maintain strict risk management",
+          "Follow trend direction",
+          "Use multiple timeframes for confirmation",
+          "Consider market sentiment",
+          "Monitor volume and liquidity",
+          "Set clear entry and exit points",
+          "Diversify across instruments",
+          "Keep position sizes proportional to account size"
+        ],
+        "must_not_do": [
+          "Trade against the trend",
+          "Overtrade or chase losses",
+          "Ignore stop losses",
+          "Trade without a plan",
+          "Risk more than 2% per trade",
+          "Trade during high-impact news",
+          "Hold losing positions too long",
+          "Trade without proper analysis"
+        ]
+      }
+    },
+    "standard_forecast": {
+      "name": "Standard Forecast",
+      "description": "Generate standard forecasts based on historical data and patterns",
+      "parameters": {
+        "forecast_horizon": 30,
+        "confidence_interval": 0.95,
+        "seasonality_period": 12,
+        "max_lookback": 365,
+        "min_data_points": 30
+      },
+      "rules": {
+        "must_do": [
+          "Use appropriate time series methods",
+          "Account for seasonality",
+          "Consider external factors",
+          "Validate model assumptions",
+          "Test forecast accuracy",
+          "Document assumptions",
+          "Update models regularly",
+          "Consider multiple scenarios"
+        ],
+        "must_not_do": [
+          "Extrapolate beyond data range",
+          "Ignore data quality issues",
+          "Overfit to historical data",
+          "Assume constant patterns",
+          "Ignore uncertainty ranges",
+          "Use inappropriate models",
+          "Ignore recent trends",
+          "Make forecasts without validation"
+        ]
+      }
+    },
+    "multi_agent_forecast": {
+      "name": "Multi-Agent Forecast",
+      "description": "Generate forecasts considering multiple interacting agents and their behaviors",
+      "parameters": {
+        "num_agents": 10,
+        "interaction_depth": 3,
+        "simulation_steps": 100,
+        "convergence_threshold": 0.01,
+        "max_iterations": 1000
+      },
+      "rules": {
+        "must_do": [
+          "Model agent interactions",
+          "Consider feedback loops",
+          "Account for learning effects",
+          "Simulate multiple scenarios",
+          "Track agent behaviors",
+          "Monitor system stability",
+          "Validate agent models",
+          "Consider network effects"
+        ],
+        "must_not_do": [
+          "Assume independent agents",
+          "Ignore learning dynamics",
+          "Overlook feedback effects",
+          "Assume static behaviors",
+          "Ignore network structure",
+          "Simplify complex interactions",
+          "Assume perfect information",
+          "Ignore adaptation effects"
+        ]
+      }
+    }
+  }
+}
