@@ -31,22 +31,22 @@ if not api_key:
 
 client = anthropic.Client(api_key=api_key)
 scenario_parser = ScenarioParser()
-available_heuristics = list_all_heuristic_names()
 
 
 # Define available heuristics with descriptions
 def list_all_heuristic_names():
-    print("\nAvailable heuristics:")
+    heuristic_list = "Available heuristics:"
     for heuristic_id, details in heuristics_data["heuristics"].items():
-        print(f"- {details['name']} (ID: {heuristic_id})")
+        heruistic_list += f"- {details['name']} (ID: {heuristic_id})"
+    return heuristic_list
 
 
 def list_all_heuristic_names_and_characteristics():
-    print("Available heuristics and characteristics:\n")
+    heuristic_characteristics = "Available heuristics and characteristics:\n"
     for heuristic_id, details in heuristics_data["heuristics"].items():
-        print(f"- {details['name']} (ID: {heuristic_id})")
-        print(f"  Description: {details['description']}")
-        print(".\n")
+        heuristic_characteristics += f"- {details['name']} (ID: {heuristic_id})"
+        heuristic_characteristics += f"  Description: {details['description']}\n"
+    return heuristic_characteristics
 
 
 def get_heuristic_details(heuristic_id):
@@ -79,7 +79,7 @@ def check_shortcode(message: str) -> Optional[str]:
 ## Adapt this section to handle and route the specific domains defined in the HEURISTICS_LIST in rules_demo.py
 ## The lines "For geopolitical analysis..." should use a term that matches the heuristic name and give
 ## some general parameters to help the LLM match the inout to a heuristic
-
+available_heuristics = list_all_heuristic_names_and_characteristics
 
 def match_heuristic_with_llm(message: str) -> Tuple[str, str]:
     """
@@ -90,7 +90,7 @@ def match_heuristic_with_llm(message: str) -> Tuple[str, str]:
 
     system_prompt = """
     Analyze the following scenario and determine which heuristic best matches its content.
-    {available_heuristic_names_and_characteristics}
+    {available_heuristics}
 
     For geopolitical analysis involving international relations, trade, or political dynamics, use the 'geopolitics' heuristic.
     For negotiation scenarios involving corporate discussions or conflict resolution, use the 'negotiation' heuristic.
