@@ -9,9 +9,16 @@ import logging
 from typing import Tuple, Optional, Dict
 from scenario_parser import ScenarioParser
 
+
 # from rules_DEMO import negotiations_rules, HEURISTIC_LIST
 
 ## the rules_demo.py file holds the prompts and specific rules / heuristics for each domain.
+
+# Load heuristics from JSON file
+with open("heuristics.json", "r") as f:
+    heuristics_data = json.load(f)
+    HEURISTIC_LIST = {k: v["name"] for k, v in heuristics_data["heuristics"].items()}
+
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -30,21 +37,21 @@ available_heuristics = list_all_heuristic_names()
 # Define available heuristics with descriptions
 def list_all_heuristic_names():
     print("\nAvailable heuristics:")
-    for heuristic_id, details in heuristics["heuristics"].items():
+    for heuristic_id, details in heuristics_data["heuristics"].items():
         print(f"- {details['name']} (ID: {heuristic_id})")
 
 
 def list_all_heuristic_names_and_characteristics():
     print("Available heuristics and characteristics:\n")
-    for heuristic_id, details in heuristics["heuristics"].items():
+    for heuristic_id, details in heuristics_data["heuristics"].items():
         print(f"- {details['name']} (ID: {heuristic_id})")
         print(f"  Description: {details['description']}")
         print(".\n")
 
 
 def get_heuristic_details(heuristic_id):
-    if heuristic_id in heuristics["heuristics"]:
-        return heuristics["heuristics"][heuristic_id]
+    if heuristic_id in heuristics_data["heuristics"]:
+        return heuristics_data["heuristics"][heuristic_id]
     return None
 
 
