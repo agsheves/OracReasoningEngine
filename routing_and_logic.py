@@ -10,7 +10,6 @@ from typing import Tuple, Optional, Dict
 from scenario_parser import ScenarioParser
 
 # from rules_DEMO import negotiations_rules, HEURISTIC_LIST
-from heuristics import HEURISTIC_LIST
 
 ## the rules_demo.py file holds the prompts and specific rules / heuristics for each domain.
 
