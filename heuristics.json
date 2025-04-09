@@ -172,6 +172,12 @@
           "Ignore adaptation effects"
         ]
       }
+    },
+    "default_agent": {
+      "name": "Default Reasoning Agent",
+      "description": "A general model capable of deep reasoning across a range of scenarios.",
+      "parameters": "Inherited from the query",
+      "rules": "Inherited from the query"
     }
   }
 }

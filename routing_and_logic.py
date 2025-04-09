@@ -7,8 +7,8 @@ import os
 import json
 import logging
 from typing import Tuple, Optional, Dict
-from scenario_parser import ScenarioParser
-
+from query_parser import ScenarioParser
+from utilities import list_all_heuristic_names_and_characteristics
 
 # from rules_DEMO import negotiations_rules, HEURISTIC_LIST
 
@@ -30,30 +30,7 @@ if not api_key:
     raise ValueError("ANTHROPIC_API_KEY environment variable is not set")
 
 client = anthropic.Client(api_key=api_key)
-scenario_parser = ScenarioParser()
-
-
-# Define available heuristics with descriptions
-def list_all_heuristic_names():
-    heuristic_list = "Available heuristics:"
-    for heuristic_id, details in heuristics_data["heuristics"].items():
-        heruistic_list += f"- {details['name']} (ID: {heuristic_id})"
-    return heuristic_list
-
-
-def list_all_heuristic_names_and_characteristics():
-    heuristic_characteristics = "Available heuristics and characteristics:\n"
-    for heuristic_id, details in heuristics_data["heuristics"].items():
-        heuristic_characteristics += f"- {details['name']} (ID: {heuristic_id})"
-        heuristic_characteristics += f"  Description: {details['description']}\n"
-    return heuristic_characteristics
-
-
-def get_heuristic_details(heuristic_id):
-    if heuristic_id in heuristics_data["heuristics"]:
-        return heuristics_data["heuristics"][heuristic_id]
-    return None
-
+query_parser = ScenarioParser()
 
 def check_shortcode(message: str) -> Optional[str]:
     """
@@ -80,6 +57,7 @@ def check_shortcode(message: str) -> Optional[str]:
 ## The lines "For geopolitical analysis..." should use a term that matches the heuristic name and give
 ## some general parameters to help the LLM match the inout to a heuristic
 available_heuristics = list_all_heuristic_names_and_characteristics
+
 
 def match_heuristic_with_llm(message: str) -> Tuple[str, str]:
     """
@@ -160,13 +138,13 @@ def process_scenario(message: str) -> Dict:
 
     # Step 2: Parse scenario details
     try:
-        parsed_scenario = scenario_parser.parse_scenario(message)
+        parsed_scenario = query_parser.parse_scenario(message)
         # Add the matched heuristic to the scenario parameters
         parsed_scenario["parameters"] = parsed_scenario.get("parameters", {})
         parsed_scenario["parameters"]["heuristic"] = heuristic
 
         # Step 3: Format for display
-        display_format = scenario_parser.format_for_display(parsed_scenario)
+        display_format = query_parser.format_for_display(parsed_scenario)
 
         return {
             "heuristic": heuristic,
@@ -199,7 +177,7 @@ def initial_routing(message: str) -> Dict:
 
     if heuristic == "none":
         logger.info("No matching heuristic found")
-        settings = scenario_parser.parse_scenario(message)
+        settings = query_parser.parse_scenario(message)
         heuristic = "general model"
 
     logger.info(f"Routing via LLM match to heuristic: {heuristic}")
